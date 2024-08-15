@@ -13,12 +13,11 @@ impl Mesh {
     pub fn read_vertices(&mut self, data: &str) -> Result<(), Error> {
         let regex = Regex::new(r"v (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+)")?;
         for caps in regex.captures_iter(&data) {
-            let vertex = Vector3::new(
+            self.vertices.extend([
                 self.parse_vertex_component(&caps, 1)?, 
                 self.parse_vertex_component(&caps, 2)?, 
                 self.parse_vertex_component(&caps, 3)?
-            );
-            self.vertices.push(vertex);
+            ]);
         }
         Ok(())
     }
@@ -26,7 +25,7 @@ impl Mesh {
     pub fn read_tris(&mut self, data: &str) -> Result<(), Error> {
         let regex = Regex::new(r"f ([0-9]*) ([0-9]*) ([0-9]*)\n")?;
         for caps in regex.captures_iter(&data) {
-            self.faces.push([
+            self.faces.extend([
                 self.parse_vertex_index(&caps, 1)?,
                 self.parse_vertex_index(&caps, 2)?,
                 self.parse_vertex_index(&caps, 3)?,
@@ -42,8 +41,8 @@ impl Mesh {
             let i2 = self.parse_vertex_index(&caps, 2)?;
             let i3 = self.parse_vertex_index(&caps, 3)?;
             let i4 = self.parse_vertex_index(&caps, 4)?;
-            self.faces.push([i1, i2, i3]);
-            self.faces.push([i1, i3, i4]);
+            self.faces.extend([i1, i2, i3]);
+            self.faces.extend([i1, i3, i4]);
         }
         Ok(())
     }
