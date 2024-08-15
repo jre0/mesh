@@ -104,4 +104,13 @@ fn flip_face() -> Result<(), Error> {
     Ok(())
 }
 
+#[test]
+fn consistent_orientation() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let mesh = Mesh::read(&input_path)?;
+    // Not finished!
+    let _ = mesh.consistent_orientation();
+    Ok(())
+}
+
 
