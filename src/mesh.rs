@@ -1,4 +1,4 @@
-use std::fs;
+use std::{collections::HashSet, fs};
 use regex::{Captures, Regex};
 use super::*;
 
@@ -21,12 +21,13 @@ impl Mesh {
 
     // TODO: do the same by face index
     /// B. Given a vertex/face, return the adjacent faces/vertices
+    /// Only selecting the faces that use the given vertex index by design
     pub fn select_adjacent_by_vertex_index(&self, target_index: usize) -> Selection {
-        let mut vertices = vec![];
-        let mut faces = vec![];
+        let mut vertices = HashSet::new();
+        let mut faces = HashSet::new();
         for (face_index, face) in self.faces.windows(3).step_by(3).enumerate() {
             if face.iter().find(|vertex_index| **vertex_index == target_index).is_some() {
-                faces.push(face_index);
+                faces.insert(face_index);
                 vertices.extend(face);
             }
         }
@@ -94,21 +95,57 @@ impl Mesh {
     }
 
     /// 2. Write a function that returns whether all faces are consistently oriented.
+    /// Making the assumption that all faces share vertices so they are connected together
     pub fn consistent_orientation(&self) -> bool {
-        for l in self.faces.windows(3).step_by(3) {
-            for r in self.faces.windows(3).step_by(3) {
-                if l != r {
-                    if (l[0] == r[0] && l[1] == r[1]) 
-                        || (l[0] == r[0] && l[2] == r[2]) 
-                        // or other bad shared vertex pair/situation
-                    {
-                        return false;
-                    }
+        for (index_a, a) in self.faces.windows(3).step_by(3).enumerate() {
+            for b in self.faces.windows(3).step_by(3).skip(index_a + 1) {
+                // imagine two paper cutout triangles on a table. These vertex pairs cannot be 
+                // shared without flipping or overlapping the triangles
+                if (a[0] == b[0] && a[1] == b[1]) 
+                    || (a[0] == b[0] && a[2] == b[2]) 
+                    || (a[1] == b[1] && a[2] == b[2]) 
+                    // same as previous check but r triangle "rotated" 120
+                    || (a[0] == b[1] && a[1] == b[2]) 
+                    || (a[0] == b[1] && a[2] == b[0]) 
+                    || (a[1] == b[2] && a[2] == b[0]) 
+                    // same as previous check but r triangle "rotated" another 120
+                    || (a[0] == b[2] && a[1] == b[0]) 
+                    || (a[0] == b[2] && a[2] == b[1]) 
+                    || (a[1] == b[0] && a[2] == b[1]) 
+                    // or other bad shared vertex pair/situation
+                {
+                    return false;
                 }
             }
         }
         true
     } 
+
+    /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
+    /// Collecting any triangle that connects with another triangle with given angle or less.
+    pub fn faces_with_minimum_angle(&self, angle: f64) -> Selection {
+        let mut faces = HashSet::new();
+        for (index_a, a) in self.faces.windows(3).step_by(3).enumerate() {
+            for (index_b, b) in self.faces.windows(3).step_by(3).enumerate().skip(index_a + 1) {
+                let norm_a = self.face_normal(a);
+                let norm_b = self.face_normal(b);
+                if norm_a.dot(&norm_b).acos().to_degrees() <= angle {
+                    faces.extend([index_a, index_b]);
+                };
+            }
+        }
+        Selection {vertices: HashSet::new(), faces}
+    }
+
+    /// Get normal of face using cross product of two edges 
+    pub fn face_normal(&self, face: &[usize]) -> Vector3 {
+        let a = self.vertex_coordinates(face[0]);
+        let b = self.vertex_coordinates(face[1]);
+        let c = self.vertex_coordinates(face[2]);
+        // Unwrapping result for simplicity right now (could be NaN!).
+        // Normally we should handle the error if vector is too short to normalized
+        (&b - &a).cross(&c - &a).normalized().unwrap()
+    }
     
     /// 5. Write a function that collapses all edges with length below a specified threshold.
     /// Not finished!
@@ -130,6 +167,6 @@ impl Mesh {
 
 /// List of selected vertex and face indices in a mesh.
 pub struct Selection {
-    pub vertices: Vec<usize>,
-    pub faces: Vec<usize>,
+    pub vertices: HashSet<usize>,
+    pub faces: HashSet<usize>,
 }

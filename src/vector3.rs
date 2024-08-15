@@ -20,6 +20,28 @@ impl Vector3 {
     pub fn length(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
+    pub fn dot(&self, rhs: &Self) -> f64 {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+    }
+    pub fn cross(&self, rhs: Self) -> Self {
+        Self {
+            x: self.y * rhs.z - self.z * rhs.y,
+            y: self.z * rhs.x - self.x * rhs.z,
+            z: self.x * rhs.y - self.y * rhs.x,
+        }
+    }
+    pub fn normalized(&self) -> Option<Self> {
+        let length = self.length();
+        if length > 0.00001 {
+            Some(Self {
+                x: self.x / length,
+                y: self.y / length,
+                z: self.z / length,
+            })
+        } else {
+            None
+        }
+    }
 }
 
 impl Sub for &Vector3 {

@@ -57,12 +57,12 @@ impl Mesh {
             .parse::<f64>()?)
     }
 
-    /// X, Y, or Z component from capture groups
+    /// face vertex index with 1 subtracted so index starts at 0
     fn parse_vertex_index(&self, caps: &Captures, group_index: usize) -> Result<usize, Error> {
         Ok(caps
             .get(group_index)
             .ok_or("parse_vertex_index failed")?
             .as_str()
-            .parse::<usize>()?)
+            .parse::<usize>()? - 1)
     }
 }

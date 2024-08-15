@@ -109,8 +109,15 @@ fn flip_face() -> Result<(), Error> {
 fn consistent_orientation() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let mesh = Mesh::read(&input_path)?;
-    // Not finished!
     let _ = mesh.consistent_orientation();
+    Ok(())
+}
+
+#[test]
+fn faces_with_minimum_angle() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let mesh = Mesh::read(&input_path)?;
+    let _ = mesh.faces_with_minimum_angle(10.);
     Ok(())
 }
 

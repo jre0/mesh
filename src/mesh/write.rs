@@ -25,7 +25,8 @@ impl Mesh {
     }
 
     /// Make face from one vertex index.
+    /// Add one to put back into normal OBJ format
     fn face(&self, i: &[usize]) -> String {
-        format!("f {} {} {}\n", i[0], i[1], i[2])
+        format!("f {} {} {}\n", i[0] + 1, i[1] + 1, i[2] + 1)
     }
 }
