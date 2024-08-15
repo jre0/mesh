@@ -1,7 +1,7 @@
 use super::*;
 
 impl Mesh {
-    pub fn import(path: &str) -> Result<Self, Error> {
+    pub fn read(path: &str) -> Result<Self, Error> {
         let data = fs::read_to_string(path)?;
         let mut mesh = Self::new();
         mesh.read_vertices(&data)?;
@@ -41,6 +41,7 @@ impl Mesh {
             let i2 = self.parse_vertex_index(&caps, 2)?;
             let i3 = self.parse_vertex_index(&caps, 3)?;
             let i4 = self.parse_vertex_index(&caps, 4)?;
+            // make two triangles from the quad
             self.faces.extend([i1, i2, i3]);
             self.faces.extend([i1, i3, i4]);
         }

@@ -5,7 +5,7 @@ use super::*;
 const HEAD: &str = "Test Export\n\n";
 
 impl Mesh {
-    pub fn export(&self, path: &str) -> Result<(), Error> {
+    pub fn write(&self, path: &str) -> Result<(), Error> {
         let mut out = HEAD.to_owned();
         out += "# Vertices\n";
         for data in self.vertices.windows(3).step_by(3) {

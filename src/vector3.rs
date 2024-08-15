@@ -1,5 +1,3 @@
-use super::*;
-
 pub struct Vector3 {
     x: f64,
     y: f64,
@@ -17,7 +15,4 @@ impl Vector3 {
     pub fn as_vec(&self) -> Vec<f64> {
         vec![self.x, self.y, self.z]
     }
-    // pub fn new(x: f64, y: f64, z: f64) -> Self {
-    //     Self {x, y, z}
-    // }
 }

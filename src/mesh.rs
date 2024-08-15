@@ -2,8 +2,8 @@ use std::fs;
 use regex::{Captures, Regex};
 use super::*;
 
-mod import;
-mod export;
+mod read;
+mod write;
 
 /// Mesh
 #[derive(Default)]
@@ -16,6 +16,8 @@ impl Mesh {
     pub fn new() -> Self {
         Self::default()
     }
+
+    /// A. Read/Write located in src/mesh
 
     // TODO: do the same by face index
     /// B. Given a vertex/face, return the adjacent faces/vertices
@@ -48,10 +50,10 @@ impl Mesh {
     pub fn delete_vertex(&mut self, target_index: usize, delete_faces: bool) {
         let adjacent = self.select_adjacent_by_vertex_index(target_index);
         let i = target_index * 3;
-        let front_range = &self.vertices[0..i];
-        let back_range = &self.vertices.clone()[i+1..];
-        self.vertices = front_range.to_vec();
-        self.vertices.extend(back_range);
+        let slice_0 = &self.vertices[..i];
+        let slice_1 = &self.vertices.clone()[i+3..];
+        self.vertices = slice_0.to_vec();
+        self.vertices.extend(slice_1);
         // Reduce vertex indices in faces after the deleted vertex
         for vertex_index in &mut self.faces {
             if *vertex_index > target_index {
@@ -59,15 +61,24 @@ impl Mesh {
             }
         }
         if delete_faces {
-            for face in adjacent.faces {
-
+            for index in adjacent.faces {
+                self.delete_face(index);
             }
         }
     }
 
+    /// Delete a face
+    pub fn delete_face(&mut self, target_index: usize) {
+        let i = target_index * 3;
+        let slice_0 = &self.faces[..i];
+        let slice_1 = &self.faces.clone()[i+3..];
+        self.faces = slice_0.to_vec();
+        self.faces.extend(slice_1);
+    }
+
     /// F. Construct a new face from vertices, ...
-    pub fn add_face(&mut self, face: [usize; 3]) {
-        self.faces.extend(face);
+    pub fn add_face(&mut self, vertice_indices: [usize; 3]) {
+        self.faces.extend(vertice_indices);
     }
     /// F. ... and a new vertex from coordinates.
     pub fn add_vertex(&mut self, coordinates: Vector3) {
@@ -75,7 +86,32 @@ impl Mesh {
     }
 
     /// G. Flip the sense of a face
-    pub fn flip_face(&mut self, face_index: usize) {
+    pub fn flip_face(&mut self, index: usize) {
+        let i = index * 3;
+        let first_vertex_index = self.faces[i];
+        self.faces[i] = self.faces[i + 1];
+        self.faces[i + 1] = first_vertex_index;
+    }
+
+    /// 2. Write a function that returns whether all faces are consistently oriented.
+    pub fn consistent_orientation(&self) -> bool {
+        for l in self.faces.windows(3).step_by(3) {
+            for r in self.faces.windows(3).step_by(3) {
+                if l != r {
+                    if (l[0] == r[0] && l[1] == r[1]) 
+                        || (l[0] == r[0] && l[2] == r[2]) 
+                        // or other bad shared vertex pair/situation
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        true
+    } 
+    
+    /// 5. Write a function that collapses all edges with length below a specified threshold.
+    pub fn collapse_short_edges(&mut self) {
         
     }
 }
