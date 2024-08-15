@@ -45,11 +45,12 @@ fn select_adjacent() -> Result<(), Error> {
     Ok(())
 }
 
+/// Need to do asserts to check validity!!!
 #[test]
 fn select_all() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let mesh = Mesh::read(&input_path)?;
-    let selection = mesh.select_all();
+    let _ = mesh.select_all();
     Ok(())
 }
 
@@ -57,7 +58,7 @@ fn select_all() -> Result<(), Error> {
 fn vertex_coordinates() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let mesh = Mesh::read(&input_path)?;
-    let vector3 = mesh.vertex_coordinates(142);
+    let _ = mesh.vertex_coordinates(142);
     Ok(())
 }
 

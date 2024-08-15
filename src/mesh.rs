@@ -111,8 +111,20 @@ impl Mesh {
     } 
     
     /// 5. Write a function that collapses all edges with length below a specified threshold.
-    pub fn collapse_short_edges(&mut self) {
-        
+    /// Not finished!
+    pub fn collapse_short_edges(&mut self, threshold: f64) {
+        let mut verts_to_delete: Vec<usize> = vec![];
+        for vi in self.faces.windows(3).step_by(3) {
+            let a = self.vertex_coordinates(vi[0]);
+            let b = self.vertex_coordinates(vi[1]);
+            let c = self.vertex_coordinates(vi[2]);
+            if (&a - &b).length() < threshold {
+                let effected_faces = self.select_adjacent_by_vertex_index(vi[0]);
+                verts_to_delete.extend(&vi[0..1])
+            }
+            // TODO: check other edges
+        }
+        // self.delete_vertex(index, true);
     }
 }
 
