@@ -121,6 +121,10 @@ impl Mesh {
         true
     } 
 
+    // 3. Write a function that returns the number of loops bounding a surface mesh.
+    // I would need to track the data in some other way or use the min angle function 
+    // to find all the triangles of a face and go from there
+
     /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
     /// Collecting any triangle that connects with another triangle with given angle or less.
     pub fn faces_with_minimum_angle(&self, angle: f64) -> Selection {
