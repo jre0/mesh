@@ -162,3 +162,20 @@ fn not_consistently_oriented() -> Result<(), Error> {
     assert_eq!(mesh.consistent_orientation(), false);
     Ok(())
 }
+
+
+
+/// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees. 
+/// I might have miss understood this task. However, this one is fun to play around with. 
+/// Try running the test multiple times with different angles and viewing the mesh in blender. 
+/// The faces HashSet gives different selections on each run (not good for consistent testing). 
+#[test]
+fn grow_selection_with_max_angle() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_selection_below_angle.obj";
+    let mesh = Mesh::read(&input_path)?;
+    let face = *mesh.face_list().first().ok_or("no faces")?;
+    face.grow_selection_with_max_angle(15.)?.write(&output_path)?;
+    Ok(())
+}
+

@@ -76,7 +76,7 @@ impl Pointer<Face> {
     /// I am not sure by "MINIMUM angle BELOW a specified angle". 
     /// I think below means there is a max angle and we want to be below that. (if there is a min, we want to be above it)
     /// This method will grow selection from this face, stopping at sharp corners where the angle is too great.
-    pub fn grow_selection_with_max_anlge(&self, angle: f64) -> Result<Mesh, Error> {
+    pub fn grow_selection_with_max_angle(&self, angle: f64) -> Result<Mesh, Error> {
         let mut mesh = Mesh::default();
         self.insert_adjacent_with_max_angle(&mut mesh, angle)?;
         Ok(mesh)
