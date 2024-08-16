@@ -21,9 +21,8 @@ impl Mesh {
                 self.parse_vertex_component(&caps, 3)?
             ]);
             let vertex = Vertex::new(vector);
-            let pointer = Pointer::new(vertex);
-            self.vertices.insert(pointer.clone());
-            vertices.push(pointer);
+            self.vertices.insert(vertex.clone());
+            vertices.push(vertex);
         }
         Ok(vertices)
     }

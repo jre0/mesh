@@ -12,12 +12,12 @@ pub struct Vertex {
 impl Vertex {
     /// F. Construct a new face from vertices, and a new vertex from coordinates.
     /// (new vertex from coordinates)
-    pub fn new(point: Vector3) -> Self {
-        Self { 
+    pub fn new(point: Vector3) -> Pointer<Self> {
+        Pointer::new(Self { 
             id: rand::random::<u64>(),
             point,
             ..Default::default()
-        }
+        })
     }
 
     /// B. Given a vertex/face, return the adjacent faces/vertices
@@ -62,6 +62,15 @@ impl Hash for Vertex {
         self.id.hash(state);
     }
 }
+
+
+// pub fn new(point: Vector3) -> Self {
+//     Self { 
+//         id: rand::random::<u64>(),
+//         point,
+//         ..Default::default()
+//     }
+// }
 
 
 

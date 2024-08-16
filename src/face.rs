@@ -25,13 +25,6 @@ impl Face {
         face
     }
 
-    /// G. Flip the sense of a face.
-    pub fn flip(&mut self) {
-        let original_a = self.a.clone();
-        self.a = self.b.clone();
-        self.b = original_a;
-    }
-
     /// Select vertices as new mesh
     pub fn vertices(&self) -> Mesh {
         let mut mesh = Mesh::default();
@@ -48,6 +41,12 @@ impl Face {
 }
 
 impl Pointer<Face> {
+    /// G. Flip the sense of a face.
+    pub fn flipped(&self) -> Self {
+        // A and B are swapped so the normal will be flipped
+        Face::new([&self.b, &self.a, &self.c])
+    }
+
     /// 2. Write a function that returns whether all faces are consistently oriented.
     /// (See Mesh::consistent_orientation)
     pub fn adjacent_is_flipped(&self) -> bool {

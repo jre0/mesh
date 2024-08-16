@@ -43,6 +43,12 @@ impl Mesh {
         self.faces.remove(face);
     }
 
+    /// G. Flip the sense of a face.
+    pub fn flip_face(&mut self, face: &Pointer<Face>) {
+        self.remove_face(face);
+        self.insert_face(&face.flipped());
+    }
+
     /// 2. Write a function that returns whether all faces are consistently oriented.
     pub fn consistent_orientation(&self) -> bool {
         for face in &self.faces {
