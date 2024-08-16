@@ -13,18 +13,27 @@ impl Mesh {
         let mut count: usize = 0;
         for face in &self.faces {
             let mut indices = vec![];
-            for vertex in face.vertices().vertex_list() {
-                if let Some(index) = vertices.get(&vertex) {
+            let vertices_mesh = face.vertices();
+            for vertex in vertices_mesh.vertex_list() {
+                if let Some(index) = vertices.get(vertex) {
                     indices.push(*index);
                 } else {
                     out += &self.vertex_entry(vertex.point());
                     // Start index at 1 for OBJ format
                     count += 1;
-                    vertices.insert(vertex, count);
+                    vertices.insert(vertex.clone(), count);
                     indices.push(count);
                 }   
             }
             faces_out += &self.face_entry(indices);
+        }
+        // Output leftover vertices that no faces are referencing
+        eprintln!("damn");
+        for vertex in self.vertices.iter() {
+            eprintln!("wow");
+            if !vertices.contains_key(&vertex) {
+                out += &self.vertex_entry(vertex.point());
+            }
         }
         out += &("\n\n".to_owned() + &faces_out);
         fs::write(path, out)?;

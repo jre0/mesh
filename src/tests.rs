@@ -37,13 +37,96 @@ fn write_shuttle_mesh() -> Result<(), Error> {
     Ok(())
 }
 
+
+/// B. Given a vertex/face, return the adjacent faces/vertices.
+/// (vertex)
+#[test]
+fn select_adjacent_vertices_by_vertex() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_adjacent_verts.obj";
+    let mesh = Mesh::read(&input_path)?;
+    let vertices = mesh.vertex_list();
+    vertices.first().ok_or("no vertices")?.adjacent_vertices().write(&output_path)?;
+    Ok(())
+}
+
+
+/// B. Given a vertex/face, return the adjacent faces/vertices.
+/// (face)
+#[test]
+fn select_adjacent_face_by_face() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_adjacent_faces.obj";
+    let mesh = Mesh::read(&input_path)?;
+    let faces = mesh.face_list();
+    faces.first().ok_or("no faces")?.adjacent_faces().write(&output_path)?;
+    Ok(())
+}
+
+/// C. Return all the vertices or faces. (both)
+#[test]
+fn list_all_vertices_and_faces_and_write_new_mesh() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_from_all_faces.obj";
+    let mesh = Mesh::read(&input_path)?;
+    // don't need verts to write because write will get verts from faces
+    let _ = mesh.vertex_list();
+    let faces = mesh.face_list();
+    let mut mesh = Mesh::default();
+    mesh.faces.extend(faces.iter().map(|x| (*x).clone()));
+    mesh.write(&output_path)?;
+    Ok(())
+}
+
+/// D. Return the coordinates of a given vertex.
+#[test]
+fn coordinates_of_vertex() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let mesh = Mesh::read(&input_path)?;
+    let vertices = mesh.vertex_list();
+    let point = vertices.first().ok_or("no vertices")?.point();
+    assert!(!point.x.is_nan());
+    assert!(!point.y.is_nan());
+    assert!(!point.z.is_nan());
+    Ok(())
+}
+
+/// E. Delete a vertex or face, with optional flag to delete all connected faces (if a vertex).
+/// (Vertex)
+#[test]
+fn delete_vertex() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_deleted_vertex.obj";
+    let mut mesh = Mesh::read(&input_path)?;
+    let count = mesh.vertices.len();
+    let vertex1 = {
+        *mesh.vertex_list().first().ok_or("no vertices")?
+    }.clone();
+    mesh.remove_vertex(&vertex1, true);
+    mesh.write(&output_path)?;
+    assert_eq!(mesh.vertices.len(), count - 1);
+    Ok(())
+}
+
+
+
+
+
+
+
+
+
 // #[test]
-// fn select_adjacent() -> Result<(), Error> {
+// fn select_adjacent_face_by_face() -> Result<(), Error> {
 //     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+//     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_adjacent_faces.obj";
 //     let mesh = Mesh::read(&input_path)?;
-//     let selection = mesh.select_adjacent_by_vertex_index(142);
+//     let faces = mesh.face_list();
+//     faces.first().ok_or("no faces")?.adjacent_faces().write(&output_path)?;
 //     Ok(())
 // }
+
+
 
 // /// Need to do asserts to check validity!!!
 // #[test]

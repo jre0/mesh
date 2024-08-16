@@ -1,7 +1,7 @@
 use std::hash::Hash;
 use super::*;
 
-#[derive(Default, PartialEq, Eq, Hash)]
+#[derive(Default, PartialEq, Eq, Hash, Debug)]
 pub struct Face {
     a: Pointer<Vertex>,
     b: Pointer<Vertex>,

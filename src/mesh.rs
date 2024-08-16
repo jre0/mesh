@@ -6,7 +6,7 @@ mod read;
 mod write;
 
 /// Mesh can be the primary data or selection of a subset of the data.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Mesh {
     pub vertices: HashSet<Pointer<Vertex>>,
     pub faces: HashSet<Pointer<Face>>,
@@ -16,14 +16,14 @@ pub struct Mesh {
 impl Mesh {
     /// C. Return all the vertices or faces 
     /// (Vertices)
-    pub fn vertex_list(self) -> Vec<Pointer<Vertex>> {
-        self.vertices.into_iter().collect()
+    pub fn vertex_list(&self) -> Vec<&Pointer<Vertex>> {
+        self.vertices.iter().collect()
     }
 
     /// C. Return all the vertices or faces 
     /// (Faces)
-    pub fn face_list(self) -> Vec<Pointer<Face>> {
-        self.faces.into_iter().collect()
+    pub fn face_list(&self) -> Vec<&Pointer<Face>> {
+        self.faces.iter().collect()
     }
 
     /// E. Delete a vertex or face, with optional flag to delete all connected faces (if a vertex).

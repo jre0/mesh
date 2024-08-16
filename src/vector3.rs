@@ -2,7 +2,7 @@ use std::ops::Sub;
 use super::*;
 
 /// 3D vector to represent coordinates and directions
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Vector3 {
     pub x: f64,
     pub y: f64,

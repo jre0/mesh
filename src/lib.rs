@@ -20,6 +20,7 @@ mod selection;
 
 pub type Error = Box<dyn error::Error>;
 
+#[derive(Debug)]
 pub struct Pointer<T>(Arc<T>);
 
 impl<T> Deref for Pointer<T> {

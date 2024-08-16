@@ -1,7 +1,7 @@
 use std::{hash::Hash, sync::{RwLock, Weak}};
 use super::*;
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Vertex {
     id: u64,
     point: Vector3,
