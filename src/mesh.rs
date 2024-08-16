@@ -8,9 +8,9 @@ mod write;
 /// Mesh can be the primary data or selection of a subset of the data.
 #[derive(Default, Clone)]
 pub struct Mesh {
-    vertices: HashSet<ArcPlus<Vertex>>,
-    edges: HashSet<ArcPlus<Edge>>,
-    faces: HashSet<ArcPlus<Face>>,
+    vertices: HashSet<Pointer<Vertex>>,
+    edges: HashSet<Pointer<Edge>>,
+    faces: HashSet<Pointer<Face>>,
 }
 
 impl Mesh {
@@ -20,7 +20,7 @@ impl Mesh {
         let mut mesh = Mesh::default();
         for weak_face in faces {
             if let Some(strong_face) = weak_face.upgrade() {
-                mesh.faces.insert(ArcPlus::new(strong_face));
+                mesh.faces.insert(Pointer::from_arc(strong_face));
             }
         }
         mesh

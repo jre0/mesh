@@ -3,9 +3,9 @@ use super::*;
 
 #[derive(Default)]
 pub struct Selection {
-    pub vertices: HashSet<ArcPlus<Vertex>>,
-    pub edges: HashSet<ArcPlus<Edge>>,
-    pub faces: HashSet<ArcPlus<Face>>,
+    pub vertices: HashSet<Pointer<Vertex>>,
+    pub edges: HashSet<Pointer<Edge>>,
+    pub faces: HashSet<Pointer<Face>>,
 }
 
 impl Selection {

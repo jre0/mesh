@@ -3,47 +3,60 @@ use super::*;
 impl Mesh {
     pub fn read(path: &str) -> Result<Self, Error> {
         let data = fs::read_to_string(path)?;
-        let mut mesh = Self::new();
-        mesh.read_vertices(&data)?;
-        mesh.read_tris(&data)?;
-        mesh.read_quads(&data)?;
+        let mut mesh = Self::default();
+        let vertices = mesh.read_vertices(&data)?;
+        mesh.read_tris(&data, &vertices)?;
+        mesh.read_quads(&data, &vertices)?;
         Ok(mesh)
     }
 
-    pub fn read_vertices(&mut self, data: &str) -> Result<(), Error> {
+    /// Put vertices directly into Mesh and keep a list for read_tris and read_quads to find by index
+    pub fn read_vertices(&mut self, data: &str) -> Result<Vec<Pointer<Vertex>>, Error> {
+        let mut vertices = vec![];
         let regex = Regex::new(r"v (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+)")?;
         for caps in regex.captures_iter(&data) {
-            self.vertices.extend([
+            let vector = Vector3::new([
                 self.parse_vertex_component(&caps, 1)?, 
                 self.parse_vertex_component(&caps, 2)?, 
                 self.parse_vertex_component(&caps, 3)?
             ]);
+            let vertex = Vertex::new(vector);
+            let pointer = Pointer::new(vertex);
+            self.vertices.insert(pointer.clone());
+            vertices.push(pointer);
         }
-        Ok(())
+        Ok(vertices)
     }
 
-    pub fn read_tris(&mut self, data: &str) -> Result<(), Error> {
+    pub fn read_tris(&mut self, data: &str, vertices: &Vec<Pointer<Vertex>>) -> Result<(), Error> {
         let regex = Regex::new(r"f ([0-9]*) ([0-9]*) ([0-9]*)\n")?;
         for caps in regex.captures_iter(&data) {
-            self.faces.extend([
-                self.parse_vertex_index(&caps, 1)?,
-                self.parse_vertex_index(&caps, 2)?,
-                self.parse_vertex_index(&caps, 3)?,
+            let face = Face::new([
+                &vertices[self.parse_vertex_index(&caps, 1)?],
+                &vertices[self.parse_vertex_index(&caps, 2)?],
+                &vertices[self.parse_vertex_index(&caps, 3)?],
             ]);
+            let pointer = Pointer::new(face);
+            self.faces.insert(pointer);
         }
         Ok(())
     }
 
-    pub fn read_quads(&mut self, data: &str) -> Result<(), Error> {
+    pub fn read_quads(&mut self, data: &str, vertices: &Vec<Pointer<Vertex>>) -> Result<(), Error> {
         let regex = Regex::new(r"f ([0-9]*) ([0-9]*) ([0-9]*) ([0-9]*)")?;
         for caps in regex.captures_iter(&data) {
-            let i1 = self.parse_vertex_index(&caps, 1)?;
-            let i2 = self.parse_vertex_index(&caps, 2)?;
-            let i3 = self.parse_vertex_index(&caps, 3)?;
-            let i4 = self.parse_vertex_index(&caps, 4)?;
-            // make two triangles from the quad
-            self.faces.extend([i1, i2, i3]);
-            self.faces.extend([i1, i3, i4]);
+            let i1 = &vertices[self.parse_vertex_index(&caps, 1)?];
+            let i2 = &vertices[self.parse_vertex_index(&caps, 2)?];
+            let i3 = &vertices[self.parse_vertex_index(&caps, 3)?];
+            let i4 = &vertices[self.parse_vertex_index(&caps, 4)?];
+            // first triangle 
+            let face = Face::new([i1, i2, i3]);
+            let pointer = Pointer::new(face);
+            self.faces.insert(pointer);
+            // second triangle
+            let face = Face::new([i1, i3, i4]);
+            let pointer = Pointer::new(face);
+            self.faces.insert(pointer);
         }
         Ok(())
     }

@@ -1,6 +1,6 @@
 use super::*;
 
 pub struct Edge {
-    a: ArcPlus<Vertex>,
-    b: ArcPlus<Vertex>,
+    a: Pointer<Vertex>,
+    b: Pointer<Vertex>,
 }

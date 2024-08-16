@@ -3,13 +3,20 @@ use super::*;
 
 #[derive(Default, PartialEq, Eq, Hash)]
 pub struct Face {
-    a: ArcPlus<Vertex>,
-    b: ArcPlus<Vertex>,
-    c: ArcPlus<Vertex>,
+    a: Pointer<Vertex>,
+    b: Pointer<Vertex>,
+    c: Pointer<Vertex>,
 }
 
 impl Face {
-    pub fn vertices(&self) -> [ArcPlus<Vertex>; 3] {
+    pub fn new(vertices: [&Pointer<Vertex>; 3]) -> Self {
+        Self {
+            a: vertices[0].clone(),
+            b: vertices[1].clone(),
+            c: vertices[2].clone(),
+        }
+    }
+    pub fn vertices(&self) -> [Pointer<Vertex>; 3] {
         [self.a.clone(), self.b.clone(), self.c.clone()]
     }
 }

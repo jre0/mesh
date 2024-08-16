@@ -11,6 +11,14 @@ pub struct Vertex {
 
 impl Vertex {
 
+    pub fn new(point: Vector3) -> Self {
+        Self { 
+            id: rand::random::<u64>(),
+            point,
+            ..Default::default()
+        }
+    }
+
     /// B. Given a vertex/face, return the adjacent faces/vertices
     /// Select faces of vertex. The faces are adjacent because they have Arc pointers this vertex.
     pub fn adjacent_faces(&self) -> Mesh {
