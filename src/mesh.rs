@@ -1,11 +1,12 @@
-use std::{collections::HashSet, fs};
-use regex::{Captures, Regex};
 use super::*;
+use regex::{Captures, Regex};
+use std::{collections::HashSet, fs};
 
 mod read;
 mod write;
 
-/// Mesh can be the primary data or selection of a subset of the data.
+/// Mesh made of smart pointers to vertices, faces, and edges
+/// Can represent primary loaded data or subset/selection 
 #[derive(Default, Clone, Debug)]
 pub struct Mesh {
     pub vertices: HashSet<Pointer<Vertex>>,
@@ -14,13 +15,13 @@ pub struct Mesh {
 }
 
 impl Mesh {
-    /// C. Return all the vertices or faces 
+    /// C. Return all the vertices or faces
     /// (Vertices)
     pub fn vertex_list(&self) -> Vec<&Pointer<Vertex>> {
         self.vertices.iter().collect()
     }
 
-    /// C. Return all the vertices or faces 
+    /// C. Return all the vertices or faces
     /// (Faces)
     pub fn face_list(&self) -> Vec<&Pointer<Face>> {
         self.faces.iter().collect()
@@ -31,7 +32,7 @@ impl Mesh {
     pub fn remove_vertex(&mut self, vertex: &Pointer<Vertex>, delete_faces: bool) {
         if delete_faces {
             for face in vertex.adjacent_faces().face_list() {
-                self.faces.remove(&face);
+                self.faces.remove(face);
             }
         }
         self.vertices.remove(vertex);
@@ -56,10 +57,10 @@ impl Mesh {
                 return false;
             }
         }
-        true 
+        true
     }
 
-    /// Mesh from weak face pointers 
+    /// Mesh from weak face pointers
     pub fn from_weak_faces(faces: &Vec<Weak<Face>>) -> Self {
         let mut mesh = Self::default();
         for weak_face in faces {
@@ -86,7 +87,7 @@ impl Mesh {
         mesh
     }
 
-    /// Insert face pointer 
+    /// Insert face pointer
     pub fn insert_face(&mut self, face: &Pointer<Face>) {
         self.faces.insert(face.clone());
     }
@@ -99,8 +100,6 @@ impl Mesh {
     }
 }
 
-
-
 // mesh.vertices.extend(face.vertices().map(|x| x.clone()))
 
 // /// Extend vertices, faces, and edges from other
@@ -109,8 +108,6 @@ impl Mesh {
 //     self.faces.extend(other.faces);
 //     self.edges.extend(other.edges);
 // }
-
-
 
 // /// Mesh from join of self and other
 // pub fn join(&self, other: Self) -> Self {
@@ -121,9 +118,6 @@ impl Mesh {
 //     mesh
 // }
 
-
-
-
 // pub fn extend_vertices(&mut self, vertices: Vec<ArcPlus<Vertex>>) - {
 //     self.vertices.extend(vertices);
 // }
@@ -133,7 +127,6 @@ impl Mesh {
 //     mesh.vertices.extend(vertices);
 //     mesh
 // }
-
 
 // /// Mesh
 // #[derive(Default)]
@@ -229,19 +222,19 @@ impl Mesh {
 //     pub fn consistent_orientation(&self) -> bool {
 //         for (index_a, a) in self.faces.windows(3).step_by(3).enumerate() {
 //             for b in self.faces.windows(3).step_by(3).skip(index_a + 1) {
-//                 // imagine two paper cutout triangles on a table. These vertex pairs cannot be 
+//                 // imagine two paper cutout triangles on a table. These vertex pairs cannot be
 //                 // shared without flipping or overlapping the triangles
-//                 if (a[0] == b[0] && a[1] == b[1]) 
-//                     || (a[0] == b[0] && a[2] == b[2]) 
-//                     || (a[1] == b[1] && a[2] == b[2]) 
+//                 if (a[0] == b[0] && a[1] == b[1])
+//                     || (a[0] == b[0] && a[2] == b[2])
+//                     || (a[1] == b[1] && a[2] == b[2])
 //                     // same as previous check but r triangle "rotated" 120
-//                     || (a[0] == b[1] && a[1] == b[2]) 
-//                     || (a[0] == b[1] && a[2] == b[0]) 
-//                     || (a[1] == b[2] && a[2] == b[0]) 
+//                     || (a[0] == b[1] && a[1] == b[2])
+//                     || (a[0] == b[1] && a[2] == b[0])
+//                     || (a[1] == b[2] && a[2] == b[0])
 //                     // same as previous check but r triangle "rotated" another 120
-//                     || (a[0] == b[2] && a[1] == b[0]) 
-//                     || (a[0] == b[2] && a[2] == b[1]) 
-//                     || (a[1] == b[0] && a[2] == b[1]) 
+//                     || (a[0] == b[2] && a[1] == b[0])
+//                     || (a[0] == b[2] && a[2] == b[1])
+//                     || (a[1] == b[0] && a[2] == b[1])
 //                     // or other bad shared vertex pair/situation
 //                 {
 //                     return false;
@@ -249,10 +242,10 @@ impl Mesh {
 //             }
 //         }
 //         true
-//     } 
+//     }
 
 //     // 3. Write a function that returns the number of loops bounding a surface mesh.
-//     // I would need to track the data in some other way or use the min angle function 
+//     // I would need to track the data in some other way or use the min angle function
 //     // to find all the triangles of a face and go from there
 
 //     /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
@@ -271,7 +264,7 @@ impl Mesh {
 //         Selection {vertices: HashSet::new(), faces}
 //     }
 
-//     /// Get normal of face using cross product of two edges 
+//     /// Get normal of face using cross product of two edges
 //     pub fn face_normal(&self, face: &[usize]) -> Vector3 {
 //         let a = self.vertex_coordinates(face[0]);
 //         let b = self.vertex_coordinates(face[1]);
@@ -280,7 +273,7 @@ impl Mesh {
 //         // Normally we should handle the error if vector is too short to normalized
 //         (&b - &a).cross(&c - &a).normalized().unwrap()
 //     }
-    
+
 //     /// 5. Write a function that collapses all edges with length below a specified threshold.
 //     /// Not finished!
 //     pub fn collapse_short_edges(&mut self, threshold: f64) {

@@ -14,11 +14,11 @@ impl Mesh {
     pub fn read_vertices(&mut self, data: &str) -> Result<Vec<Pointer<Vertex>>, Error> {
         let mut vertices = vec![];
         let regex = Regex::new(r"v (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+)")?;
-        for caps in regex.captures_iter(&data) {
+        for caps in regex.captures_iter(data) {
             let vector = Vector3::new([
-                self.parse_vertex_component(&caps, 1)?, 
-                self.parse_vertex_component(&caps, 2)?, 
-                self.parse_vertex_component(&caps, 3)?
+                self.parse_vertex_component(&caps, 1)?,
+                self.parse_vertex_component(&caps, 2)?,
+                self.parse_vertex_component(&caps, 3)?,
             ]);
             let vertex = Vertex::new(vector);
             self.vertices.insert(vertex.clone());
@@ -27,9 +27,9 @@ impl Mesh {
         Ok(vertices)
     }
 
-    pub fn read_tris(&mut self, data: &str, vertices: &Vec<Pointer<Vertex>>) -> Result<(), Error> {
+    pub fn read_tris(&mut self, data: &str, vertices: &[Pointer<Vertex>]) -> Result<(), Error> {
         let regex = Regex::new(r"f ([0-9]*) ([0-9]*) ([0-9]*)\n")?;
-        for caps in regex.captures_iter(&data) {
+        for caps in regex.captures_iter(data) {
             let face = Face::new([
                 &vertices[self.parse_vertex_index(&caps, 1)?],
                 &vertices[self.parse_vertex_index(&caps, 2)?],
@@ -40,9 +40,9 @@ impl Mesh {
         Ok(())
     }
 
-    pub fn read_quads(&mut self, data: &str, vertices: &Vec<Pointer<Vertex>>) -> Result<(), Error> {
+    pub fn read_quads(&mut self, data: &str, vertices: &[Pointer<Vertex>]) -> Result<(), Error> {
         let regex = Regex::new(r"f ([0-9]*) ([0-9]*) ([0-9]*) ([0-9]*)")?;
-        for caps in regex.captures_iter(&data) {
+        for caps in regex.captures_iter(data) {
             let i1 = &vertices[self.parse_vertex_index(&caps, 1)?];
             let i2 = &vertices[self.parse_vertex_index(&caps, 2)?];
             let i3 = &vertices[self.parse_vertex_index(&caps, 3)?];
@@ -70,6 +70,7 @@ impl Mesh {
             .get(group_index)
             .ok_or("parse_vertex_index failed")?
             .as_str()
-            .parse::<usize>()? - 1)
+            .parse::<usize>()?
+            - 1)
     }
 }

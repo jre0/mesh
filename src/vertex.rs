@@ -1,19 +1,25 @@
-use std::{hash::Hash, sync::{RwLock, Weak}};
 use super::*;
+use std::{
+    hash::Hash,
+    sync::{RwLock, Weak},
+};
 
+/// Mesh vertex. 
+/// Primary mesh data with back references to faces
+/// which allow easy traversal of a surface.
 #[derive(Default, Clone, Debug)]
 pub struct Vertex {
     id: u64,
     point: Vector3,
-    // edges: Arc<RwLock<Vec<Weak<Face>>>>,
     faces: Arc<RwLock<Vec<Weak<Face>>>>,
+    edges: Arc<RwLock<Vec<Weak<Edge>>>>,
 }
 
 impl Vertex {
     /// F. Construct a new face from vertices, and a new vertex from coordinates.
     /// (new vertex from coordinates)
     pub fn new(point: Vector3) -> Pointer<Self> {
-        Pointer::new(Self { 
+        Pointer::new(Self {
             id: rand::random::<u64>(),
             point,
             ..Default::default()
@@ -43,9 +49,14 @@ impl Vertex {
         &self.point
     }
 
-    /// Mutate the intorior to include the weak face pointer
+    /// Mutate the interior to include the weak face pointer
     pub fn push_face_back_ref(&self, face: &Weak<Face>) {
         self.faces.write().expect("no poison").push(face.clone());
+    }
+
+    /// Mutate the interior to include the weak edge pointer
+    pub fn push_edge_back_ref(&self, edge: &Weak<Edge>) {
+        self.edges.write().expect("no poison").push(edge.clone());
     }
 }
 
@@ -62,46 +73,3 @@ impl Hash for Vertex {
         self.id.hash(state);
     }
 }
-
-
-// pub fn new(point: Vector3) -> Self {
-//     Self { 
-//         id: rand::random::<u64>(),
-//         point,
-//         ..Default::default()
-//     }
-// }
-
-
-
-// fn upgraded_faces(&self) -> Vec<Pointer<Face>> {
-//     let mut faces = vec![];
-//     for weak_face in self.faces.read().expect("no poison").iter(){
-//         if let Some(arc_face) = weak_face.upgrade() {
-//             let face = Pointer::from_arc(arc_face);
-//             if arc_face.vertices().vertices.contains(&face) {
-                
-//             }
-//             faces.push(Pointer::from_arc(arc_face));
-//         }
-//     }
-//     faces
-// }
-
-
-// pub trait Backed<T> {
-//     fn backed(&self, weak: &Weak<T>) -> Self;
-// }
-
-// impl Backed<Face> for Pointer<Vertex> {
-//     fn backed(&self, weak: &Weak<Face>) -> Self {
-//         let vertex = Pointer Vertex {
-//             id: self.id,
-//             point: self.point.clone(),
-//             faces,
-//         }
-//         //let weak_face = face
-//         vertex.0.a.faces.push(weak.clone());
-//         vertex
-//     }
-// }

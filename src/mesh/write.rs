@@ -11,6 +11,8 @@ impl Mesh {
         let mut faces_out = "# Faces\n".to_owned();
         let mut vertices = HashMap::new();
         let mut count: usize = 0;
+        // Collect vertices from faces and pre-write faces 
+        // as indices are assigned to vertices
         for face in &self.faces {
             let mut indices = vec![];
             let vertices_mesh = face.vertices();
@@ -23,18 +25,17 @@ impl Mesh {
                     count += 1;
                     vertices.insert(vertex.clone(), count);
                     indices.push(count);
-                }   
+                }
             }
             faces_out += &self.face_entry(indices);
         }
         // Output leftover vertices that no faces are referencing
-        eprintln!("damn");
         for vertex in self.vertices.iter() {
-            eprintln!("wow");
-            if !vertices.contains_key(&vertex) {
+            if !vertices.contains_key(vertex) {
                 out += &self.vertex_entry(vertex.point());
             }
         }
+        // Append the faces to the existing doc of vertices
         out += &("\n\n".to_owned() + &faces_out);
         fs::write(path, out)?;
         Ok(())
@@ -45,8 +46,8 @@ impl Mesh {
         format!("v {:.6} {:.6} {:.6}\n", point.x, point.y, point.z)
     }
 
-    /// Face entry for OBJ format from vertex indices 
-    fn face_entry(&self, indices : Vec<usize>) -> String {
+    /// Face entry for OBJ format from vertex indices
+    fn face_entry(&self, indices: Vec<usize>) -> String {
         format!("f {} {} {}\n", indices[0], indices[1], indices[2])
     }
 }

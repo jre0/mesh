@@ -1,25 +1,31 @@
-pub use vector3::*;
 pub use config::*;
-pub use mesh::*;
-pub use face::*;
 pub use edge::*;
+pub use face::*;
+pub use mesh::*;
+pub use vector3::*;
 pub use vertex::*;
-pub use selection::*;
 
-use std::{error, hash::Hash, ops::Deref, sync::{Arc, Weak}};
+use std::{
+    error,
+    hash::Hash,
+    ops::Deref,
+    sync::{Arc, Weak},
+};
 
+mod config;
+mod edge;
+mod face;
+mod mesh;
 #[cfg(test)]
 mod tests;
-mod mesh;
 mod vector3;
-mod config;
-mod face;
-mod edge;
 mod vertex;
-mod selection;
 
+/// Mesh crate error 
 pub type Error = Box<dyn error::Error>;
 
+/// Atomic reference counter smart pointer. 
+/// Equality and Hash implementations allow insertion in HashSet.
 #[derive(Debug)]
 pub struct Pointer<T>(Arc<T>);
 
@@ -63,22 +69,6 @@ impl<T> Pointer<T> {
         Self(Arc::new(item))
     }
     pub fn from_arc(arc: Arc<T>) -> Self {
-        Self(arc)   
+        Self(arc)
     }
 }
-
-// pub struct WeakPlus<T>(Weak<T>);
-
-// impl<T> Eq for WeakPlus<T> where T: Eq {}
-
-// impl<T> PartialEq for WeakPlus<T> {
-//     fn eq(&self, other: &Self) -> bool {
-//         Weak::ptr_eq(&self.0, &other.0)
-//     }
-// }
-
-// impl<T: Hash> Hash for WeakPlus<T> {
-//     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-//         //self.0.hash(state);
-//     }
-// }

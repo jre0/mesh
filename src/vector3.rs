@@ -1,12 +1,12 @@
-use std::ops::Sub;
 use super::*;
+use std::ops::Sub;
 
 /// 3D vector to represent coordinates and directions
 #[derive(Default, Clone, Debug)]
 pub struct Vector3 {
     pub x: f64,
     pub y: f64,
-    pub z: f64
+    pub z: f64,
 }
 
 impl Vector3 {
@@ -57,18 +57,3 @@ impl Sub for &Vector3 {
         }
     }
 }
-
-
-// impl PartialEq for Vector3 {
-//     fn eq(&self, other: &Self) -> bool {
-//         (self - other).length() < EP
-//     }
-// }
-
-// impl Hash for Vector3 {
-//     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-//         self.x.to_bits().hash(state);
-//         self.y.to_bits().hash(state);
-//         self.z.to_bits().hash(state);
-//     }
-// }

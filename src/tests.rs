@@ -1,27 +1,27 @@
 use super::*;
 
-/// a. Read/write basic .obj files; 
+/// a. Read/write basic .obj files;
 #[test]
 fn load_test_mesh() -> Result<(), Error> {
     let path = TEST_DATA_PATH.to_owned() + "/test.obj";
     let mesh = Mesh::read(&path)?;
     assert_eq!(7, mesh.vertices.len());
-    assert_eq!(3, mesh.faces.len()); 
+    assert_eq!(3, mesh.faces.len());
     Ok(())
 }
 
-/// a. Read/write basic .obj files; 
+/// a. Read/write basic .obj files;
 #[test]
 fn load_shuttle_mesh() -> Result<(), Error> {
     let path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let mesh = Mesh::read(&path)?;
     assert_eq!(310, mesh.vertices.len());
     // 170 tris and 223 quads in the shuttle
-    assert_eq!(616, mesh.faces.len()); 
+    assert_eq!(616, mesh.faces.len());
     Ok(())
 }
 
-/// a. Read/write basic .obj files; 
+/// a. Read/write basic .obj files;
 #[test]
 fn write_test_mesh() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/test.obj";
@@ -31,7 +31,7 @@ fn write_test_mesh() -> Result<(), Error> {
     Ok(())
 }
 
-/// a. Read/write basic .obj files; 
+/// a. Read/write basic .obj files;
 #[test]
 fn write_shuttle_mesh() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
@@ -41,7 +41,6 @@ fn write_shuttle_mesh() -> Result<(), Error> {
     Ok(())
 }
 
-
 /// B. Given a vertex/face, return the adjacent faces/vertices.
 /// (vertex)
 #[test]
@@ -50,10 +49,13 @@ fn select_adjacent_vertices_by_vertex() -> Result<(), Error> {
     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_adjacent_verts.obj";
     let mesh = Mesh::read(&input_path)?;
     let vertices = mesh.vertex_list();
-    vertices.first().ok_or("no vertices")?.adjacent_vertices().write(&output_path)?;
+    vertices
+        .first()
+        .ok_or("no vertices")?
+        .adjacent_vertices()
+        .write(&output_path)?;
     Ok(())
 }
-
 
 /// B. Given a vertex/face, return the adjacent faces/vertices.
 /// (face)
@@ -63,7 +65,11 @@ fn select_adjacent_face_by_face() -> Result<(), Error> {
     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_adjacent_faces.obj";
     let mesh = Mesh::read(&input_path)?;
     let faces = mesh.face_list();
-    faces.first().ok_or("no faces")?.adjacent_faces().write(&output_path)?;
+    faces
+        .first()
+        .ok_or("no faces")?
+        .adjacent_faces()
+        .write(&output_path)?;
     Ok(())
 }
 
@@ -103,9 +109,7 @@ fn delete_vertex() -> Result<(), Error> {
     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_deleted_vertex.obj";
     let mut mesh = Mesh::read(&input_path)?;
     let count = mesh.vertices.len();
-    let vertex1 = {
-        *mesh.vertex_list().first().ok_or("no vertices")?
-    }.clone();
+    let vertex1 = { *mesh.vertex_list().first().ok_or("no vertices")? }.clone();
     mesh.remove_vertex(&vertex1, true);
     mesh.write(&output_path)?;
     assert_eq!(mesh.vertices.len(), count - 1);
@@ -136,7 +140,7 @@ fn flip_face() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_with_flipped_face.obj";
     let mut mesh = Mesh::read(&input_path)?;
-    let face = {*mesh.face_list().first().ok_or("no faces")?}.clone();
+    let face = { *mesh.face_list().first().ok_or("no faces")? }.clone();
     mesh.flip_face(&face);
     mesh.write(&output_path)?;
     Ok(())
@@ -157,25 +161,23 @@ fn consistently_oriented() -> Result<(), Error> {
 fn not_consistently_oriented() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let mut mesh = Mesh::read(&input_path)?;
-    let face = {*mesh.face_list().first().ok_or("no faces")?}.clone();
+    let face = { *mesh.face_list().first().ok_or("no faces")? }.clone();
     mesh.flip_face(&face);
     assert_eq!(mesh.consistent_orientation(), false);
     Ok(())
 }
 
-
-
-/// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees. 
-/// I might have miss understood this task. However, this one is fun to play around with. 
-/// Try running the test multiple times with different angles and viewing the mesh in blender. 
-/// The faces HashSet gives different selections on each run (not good for consistent testing). 
+/// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
+/// I might have miss understood this task. However, this one is fun to play around with.
+/// Try running the test multiple times with different angles and viewing the mesh in blender.
+/// The faces HashSet gives different selections on each run (not good for consistent testing).
 #[test]
 fn grow_selection_with_max_angle() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_selection_below_angle.obj";
     let mesh = Mesh::read(&input_path)?;
     let face = *mesh.face_list().first().ok_or("no faces")?;
-    face.grow_selection_with_max_angle(15.)?.write(&output_path)?;
+    face.grow_selection_with_max_angle(15.)?
+        .write(&output_path)?;
     Ok(())
 }
-
