@@ -28,13 +28,18 @@ impl Vertex {
     /// B. Given a vertex/face, return the adjacent faces/vertices
     /// Select adjacent vertices of vertex including this vertex
     pub fn adjacent_vertices(&self) -> Mesh {
-        self.adjacent_faces().vertices_only()
+        self.adjacent_faces().face_vertices()
     }
 
     /// B. Given a vertex/face, return the adjacent faces/vertices
-    /// Select adjacent vertices AND faces
+    /// Select adjacent faces AND vertices
     pub fn adjacent_vertices_and_faces(&self) -> Mesh {
         self.adjacent_faces().with_face_vertices()
+    }
+
+    /// D. Return the coordinates of a given vertex.
+    pub fn point(&self) -> &Vector3 {
+        &self.point
     }
 }
 

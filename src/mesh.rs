@@ -8,16 +8,25 @@ mod write;
 /// Mesh can be the primary data or selection of a subset of the data.
 #[derive(Default, Clone)]
 pub struct Mesh {
-    vertices: HashSet<Pointer<Vertex>>,
-    edges: HashSet<Pointer<Edge>>,
-    faces: HashSet<Pointer<Face>>,
+    pub vertices: HashSet<Pointer<Vertex>>,
+    pub faces: HashSet<Pointer<Face>>,
+    pub edges: HashSet<Pointer<Edge>>,
 }
 
 impl Mesh {
+
+    /// C. Return all the vertices or faces.
+    /// Vertices only
+    pub fn vertices(&self) -> Self {
+        let mut mesh = Self::default();
+        mesh.vertices.extend(self.vertices.clone());
+        //mesh.vertices.extend(self.faces)
+        mesh
+    }
     
     /// Mesh from set of weak face pointers 
     pub fn from_weak_faces(faces: &HashSet<Weak<Face>>) -> Self {
-        let mut mesh = Mesh::default();
+        let mut mesh = Self::default();
         for weak_face in faces {
             if let Some(strong_face) = weak_face.upgrade() {
                 mesh.faces.insert(Pointer::from_arc(strong_face));
@@ -26,21 +35,26 @@ impl Mesh {
         mesh
     }
 
-    /// Select all vertices of this mesh
-    pub fn vertices_only(&self) -> Mesh {
-        let mut mesh = Mesh::default();
+    /// Select all vertices of faces of this mesh
+    pub fn face_vertices(&self) -> Self {
+        let mut mesh = Self::default();
         for face in &self.faces {
-            mesh.vertices.extend(face.0.vertices())
+            mesh.vertices.extend(face.vertices().map(|x| x.clone()))
         }
         mesh
     }
 
-    /// Select all vertices of this mesh
-    pub fn with_face_vertices(&self) -> Mesh {
+    /// Include face vertices directly in clone of this mesh
+    pub fn with_face_vertices(&self) -> Self {
+        self.clone().join(self.face_vertices())
+    }
+
+    /// Mesh from join of self and other
+    pub fn join(&self, other: Self) -> Self {
         let mut mesh = self.clone();
-        for face in &self.faces {
-            mesh.vertices.extend(face.0.vertices())
-        }
+        mesh.vertices.extend(other.vertices);
+        mesh.faces.extend(other.faces);
+        mesh.edges.extend(other.edges);
         mesh
     }
 }

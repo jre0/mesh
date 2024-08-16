@@ -16,8 +16,8 @@ impl Face {
             c: vertices[2].clone(),
         }
     }
-    pub fn vertices(&self) -> [Pointer<Vertex>; 3] {
-        [self.a.clone(), self.b.clone(), self.c.clone()]
+    pub fn vertices(&self) -> [&Pointer<Vertex>; 3] {
+        [&self.a, &self.b, &self.c]
     }
 }
 

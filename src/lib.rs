@@ -6,7 +6,7 @@ pub use edge::*;
 pub use vertex::*;
 pub use selection::*;
 
-use std::{error, hash::Hash, sync::{Arc, Weak}};
+use std::{error, hash::Hash, ops::Deref, sync::{Arc, Weak}};
 
 #[cfg(test)]
 mod tests;
@@ -21,6 +21,14 @@ mod selection;
 pub type Error = Box<dyn error::Error>;
 
 pub struct Pointer<T>(Arc<T>);
+
+impl<T> Deref for Pointer<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl<T: Default> Default for Pointer<T> {
     fn default() -> Self {
