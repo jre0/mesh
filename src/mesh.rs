@@ -29,7 +29,7 @@ impl Mesh {
 
     /// E. Delete a vertex or face, with optional flag to delete all connected faces (if a vertex).
     /// (Vertex)
-    pub fn delete_vertex(&mut self, vertex: &Pointer<Vertex>, delete_faces: bool) {
+    pub fn remove_vertex(&mut self, vertex: &Pointer<Vertex>, delete_faces: bool) {
         if delete_faces {
             for face in vertex.adjacent_faces().face_list() {
                 self.faces.remove(&face);
@@ -40,7 +40,7 @@ impl Mesh {
 
     /// E. Delete a vertex or face, with optional flag to delete all connected faces (if a vertex).
     /// (Face)
-    pub fn delete_face(&mut self, face: &Pointer<Face>) {
+    pub fn remove_face(&mut self, face: &Pointer<Face>) {
         self.faces.remove(face);
     }
 
@@ -79,6 +79,10 @@ impl Mesh {
         let mut mesh = self.clone();
         mesh.extend(self.face_vertices());
         mesh
+    }
+
+    pub fn insert_face(&mut self, face: &Pointer<Face>) {
+        self.faces.insert(face.clone());
     }
 
     /// Extend vertices, faces, and edges from other

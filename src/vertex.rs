@@ -1,12 +1,12 @@
-use std::{collections::HashSet, hash::Hash, sync::Weak};
+use std::{hash::Hash, sync::{RwLock, Weak}};
 use super::*;
 
 #[derive(Default, Clone)]
 pub struct Vertex {
     id: u64,
     point: Vector3,
-    // edges: HashSet<Weak<Edge>>,
-    faces: Vec<Weak<Face>>,
+    // edges: Arc<RwLock<Vec<Weak<Face>>>>,
+    faces: Arc<RwLock<Vec<Weak<Face>>>>,
 }
 
 impl Vertex {
@@ -23,7 +23,7 @@ impl Vertex {
     /// B. Given a vertex/face, return the adjacent faces/vertices
     /// Select faces of vertex. The faces are adjacent because they have Arc pointers this vertex.
     pub fn adjacent_faces(&self) -> Mesh {
-        Mesh::from_weak_faces(&self.faces)
+        Mesh::from_weak_faces(&self.faces.read().expect("no poison").clone())
     }
 
     /// B. Given a vertex/face, return the adjacent faces/vertices
@@ -43,34 +43,11 @@ impl Vertex {
         &self.point
     }
 
-    pub fn with_weak_face(&self, face: &Weak<Face>) -> Self {
-        let mut vertex = self.clone();
-        //let weak_face = face
-        vertex.faces.push(face.clone());
-        vertex
-    }
-
-    pub fn dummy() -> Self {
-        Self::new(Vector3::default())
+    /// Mutate the intorior to include the weak face pointer
+    pub fn push_face_back_ref(&self, face: &Weak<Face>) {
+        self.faces.write().expect("no poison").push(face.clone());
     }
 }
-
-pub trait Backed<T> {
-    fn backed(&self, weak: &Weak<T>) -> Self;
-}
-
-// impl Backed<Face> for Pointer<Vertex> {
-//     fn backed(&self, weak: &Weak<Face>) -> Self {
-//         let vertex = Pointer Vertex {
-//             id: self.id,
-//             point: self.point.clone(),
-//             faces,
-//         }
-//         //let weak_face = face
-//         vertex.0.a.faces.push(weak.clone());
-//         vertex
-//     }
-// }
 
 impl Eq for Vertex {}
 
@@ -85,3 +62,37 @@ impl Hash for Vertex {
         self.id.hash(state);
     }
 }
+
+
+
+// fn upgraded_faces(&self) -> Vec<Pointer<Face>> {
+//     let mut faces = vec![];
+//     for weak_face in self.faces.read().expect("no poison").iter(){
+//         if let Some(arc_face) = weak_face.upgrade() {
+//             let face = Pointer::from_arc(arc_face);
+//             if arc_face.vertices().vertices.contains(&face) {
+                
+//             }
+//             faces.push(Pointer::from_arc(arc_face));
+//         }
+//     }
+//     faces
+// }
+
+
+// pub trait Backed<T> {
+//     fn backed(&self, weak: &Weak<T>) -> Self;
+// }
+
+// impl Backed<Face> for Pointer<Vertex> {
+//     fn backed(&self, weak: &Weak<Face>) -> Self {
+//         let vertex = Pointer Vertex {
+//             id: self.id,
+//             point: self.point.clone(),
+//             faces,
+//         }
+//         //let weak_face = face
+//         vertex.0.a.faces.push(weak.clone());
+//         vertex
+//     }
+// }

@@ -1,4 +1,5 @@
 use std::ops::Sub;
+use super::*;
 
 /// 3D vector to represent coordinates and directions
 #[derive(Default, Clone)]
@@ -32,16 +33,16 @@ impl Vector3 {
             z: self.x * rhs.y - self.y * rhs.x,
         }
     }
-    pub fn normalized(&self) -> Option<Self> {
+    pub fn normalized(&self) -> Result<Self, Error> {
         let length = self.length();
         if length > 0.00001 {
-            Some(Self {
+            Ok(Self {
                 x: self.x / length,
                 y: self.y / length,
                 z: self.z / length,
             })
         } else {
-            None
+            Err("Vector3 too short to normalize.")?
         }
     }
 }

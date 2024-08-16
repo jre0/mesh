@@ -12,14 +12,16 @@ impl Face {
     /// F. Construct a new face from vertices, and a new vertex from coordinates.
     /// (new face from vertices)
     pub fn new(vertices: [&Pointer<Vertex>; 3]) -> Pointer<Self> {
-        let arc = Arc::new(Self {
+        let face = Pointer::new(Self {
             a: vertices[0].clone(),
             b: vertices[1].clone(),
             c: vertices[2].clone(),
         });
-        let mut face = Pointer::from_arc(arc);
         let weak_face = Arc::downgrade(&face.0);
-        // face.a = vertices[0].with_weak_face(&weak_face);
+        // add weak back reference of face to vertices 
+        vertices[0].push_face_back_ref(&weak_face);
+        vertices[1].push_face_back_ref(&weak_face);
+        vertices[2].push_face_back_ref(&weak_face);
         face
     }
 
@@ -30,14 +32,26 @@ impl Face {
         self.b = original_a;
     }
 
+    /// Select vertices as new mesh
+    pub fn vertices(&self) -> Mesh {
+        let mut mesh = Mesh::default();
+        mesh.vertices.extend([self.a.clone(), self.b.clone(), self.c.clone()]);
+        mesh 
+    }
+
+    /// Normal vector of face. 
+    pub fn normal(&self) -> Result<Vector3, Error> {
+        let delta0 = self.b.point() - self.a.point();
+        let delta1 = self.c.point() - self.a.point();
+        delta0.cross(delta1).normalized()
+    }
+}
+
+impl Pointer<Face> {
+    /// 2. Write a function that returns whether all faces are consistently oriented.
+    /// (See Mesh::consistent_orientation)
     pub fn adjacent_is_flipped(&self) -> bool {
-        let mut mesh = self.a.adjacent_faces();
-        mesh.extend(self.b.adjacent_faces());
-        mesh.extend(self.c.adjacent_faces());
-        for face in mesh.face_list() {
-            if self == face.0.as_ref() {
-                continue;
-            }
+        for face in self.adjacent_faces().face_list() {
             // Imagine two triangle blocks on a table that can be turned and slid around.
             // They cannot flip or overlap. If any of these vertex pairs are shared, 
             // it means one triangle is flipped or overlapped and does not share the same direction/orientation. 
@@ -59,40 +73,39 @@ impl Face {
         false
     }
 
-    pub fn vertices(&self) -> Mesh {
+    /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
+    /// I am not sure by "MINIMUM angle BELOW a specified angle". 
+    /// I think below means there is a max angle and we want to be below that. (if there is a min, we want to be above it)
+    /// This method will grow selection from this face, stopping at sharp corners where the angle is too great.
+    pub fn grow_selection_with_max_anlge(&self, angle: f64) -> Result<Mesh, Error> {
         let mut mesh = Mesh::default();
-        mesh.vertices.extend([self.a.clone(), self.b.clone(), self.c.clone()]);
-        mesh 
+        self.insert_adjacent_with_max_angle(&mut mesh, angle)?;
+        Ok(mesh)
+    }
+
+    /// Recursively insert adjacent faces into given mesh. 
+    /// Stop if the angle is too big or face already present in mesh.
+    pub fn insert_adjacent_with_max_angle<'a>(&self, mesh: &'a mut Mesh, angle: f64) -> Result<&'a mut Mesh, Error> {
+        mesh.insert_face(self);
+        let base_normal = self.normal()?;
+        for face in self.adjacent_faces().face_list() {
+            if mesh.faces.contains(&face) {
+                continue;
+            }
+            let normal = face.normal()?;
+            if base_normal.dot(&normal).acos().to_degrees() <= angle {
+                face.insert_adjacent_with_max_angle(mesh, angle)?;
+            }
+        }
+        Ok(mesh)
+    }
+
+    /// Select all adjacent faces excluding self
+    pub fn adjacent_faces(&self) -> Mesh {
+        let mut mesh = self.a.adjacent_faces();
+        mesh.extend(self.b.adjacent_faces());
+        mesh.extend(self.c.adjacent_faces());
+        mesh.remove_face(self);
+        mesh
     }
 }
-
-
-// pub fn vertices(&self) -> [&Pointer<Vertex>; 3] {
-//     [&self.a, &self.b, &self.c]
-// }
-
-// pub fn vertices(&self) -> [&Pointer<Vertex>; 3] {
-//     [&self.a, &self.b, &self.c]
-// }
-
-
-// pub fn vertices(&self) -> Mesh {
-//     Mesh::from_vertices(vec![self.a.clone(), self.b.clone(), self.c.clone()])
-// }
-
-// #[derive(Default, Eq)]
-// pub struct ArcFace(Arc<Face>);
-
-// impl PartialEq for ArcFace {
-//     fn eq(&self, other: &Self) -> bool {
-//         Arc::ptr_eq(&self.0, &other.0)
-//     }
-// }
-
-// impl Hash for ArcFace {
-//     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-//         self.0.a.hash(state);
-//         self.0.b.hash(state);
-//         self.0.c.hash(state);
-//     }
-// }
