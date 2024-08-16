@@ -1,9 +1,18 @@
-use std::ops::Sub;
+use std::{hash::Hash, ops::Sub};
 
+#[derive(Default)]
 pub struct Vector3 {
     x: f64,
     y: f64,
     z: f64
+}
+
+impl Hash for Vector3 {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.x.to_bits().hash(state);
+        self.y.to_bits().hash(state);
+        self.z.to_bits().hash(state);
+    }
 }
 
 impl Vector3 {
