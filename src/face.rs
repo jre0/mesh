@@ -1,5 +1,5 @@
 use super::*;
-use std::{collections::HashSet, hash::Hash};
+use std::hash::Hash;
 
 /// Face made of smart pointers to vertices
 #[derive(Default, PartialEq, Eq, Hash, Debug)]
@@ -10,8 +10,7 @@ pub struct Face {
 }
 
 impl Face {
-    /// F. Construct a new face from vertices, and a new vertex from coordinates.
-    /// (new face from vertices)
+    /// F. Construct a new face from vertices
     pub fn new(vertices: [&Pointer<Vertex>; 3]) -> Pointer<Self> {
         let face = Pointer::new(Self {
             a: vertices[0].clone(),
@@ -54,8 +53,8 @@ impl Pointer<Face> {
     pub fn adjacent_is_flipped(&self) -> bool {
         for face in self.adjacent_faces().face_list() {
             // Imagine two triangle blocks on a table that can be turned and slid around.
-            // They cannot flip or overlap. If any of these vertex pairs are shared,
-            // it means one triangle is flipped or overlapped and does not share the same direction/orientation.
+            // They should not flip or overlap. If any of these vertex pairs are shared,
+            // it means one triangle is flipped/overlapped and does not share the same direction/orientation.
             #[allow(clippy::nonminimal_bool)]
             if (self.a == face.a && self.b == face.b)
                 || (self.a == face.a && self.c == face.c)
@@ -75,16 +74,9 @@ impl Pointer<Face> {
         false
     }
 
-    /// 3. Write a function that returns the number of loops bounding a surface mesh.
-    /// The idea is to grow the selection with small angle tolerance to get a natural face 
-    /// of many triangles and count edges along the way. Then we can traverse the edges
-    /// to count loops by using the forward and backward refs with vertices
-    pub fn surface_bounding_loop_count(&self, angle_tol: f64) -> Result<(Mesh, Mesh), Error> {
-        let mut mesh = Mesh::default();
-        let mut edges = Mesh::default();
-        self.insert_adjacent_with_max_angle(&mut mesh, &mut edges, angle_tol)?;
-        //let count = edges.edges.len();
-        Ok((mesh, edges))
+    // Find open edge that does not connect with another face
+    pub fn edges(&self) -> [Pointer<Edge>; 3] {
+        [Edge::new(&self.a, &self.b), Edge::new(&self.b, &self.c), Edge::new(&self.c, &self.a)]
     }
 
     /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
@@ -93,8 +85,7 @@ impl Pointer<Face> {
     /// This method will grow selection from this face, stopping at sharp corners where the angle is too great.
     pub fn grow_selection_with_max_angle(&self, angle: f64) -> Result<Mesh, Error> {
         let mut mesh = Mesh::default();
-        let mut edges = Mesh::default();
-        self.insert_adjacent_with_max_angle(&mut mesh, &mut edges, angle)?;
+        self.insert_adjacent_with_max_angle(&mut mesh, angle)?;
         Ok(mesh)
     }
 
@@ -103,9 +94,8 @@ impl Pointer<Face> {
     pub fn insert_adjacent_with_max_angle<'a>(
         &self,
         mesh: &'a mut Mesh,
-        edges: &'a mut Mesh,
         angle: f64,
-    ) -> Result<(&'a mut Mesh, &'a mut Mesh), Error> {
+    ) -> Result<&'a mut Mesh, Error> {
         mesh.insert_face(self);
         let base_normal = self.normal()?;
         for face in self.adjacent_faces().face_list() {
@@ -114,14 +104,10 @@ impl Pointer<Face> {
             }
             let normal = face.normal()?;
             if base_normal.dot(&normal).acos().to_degrees() <= angle {
-                face.insert_adjacent_with_max_angle(mesh, edges, angle)?;
-            } else {
-                if let Ok(edge) = Edge::from_faces(self, face) {
-                    edges.insert_edge(&edge);
-                }
+                face.insert_adjacent_with_max_angle(mesh, angle)?;
             }
         }
-        Ok((mesh, edges))
+        Ok(mesh)
     }
 
     /// Select all adjacent faces excluding self

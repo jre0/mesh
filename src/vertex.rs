@@ -26,6 +26,16 @@ impl Vertex {
         })
     }
 
+    pub fn adjacent_edges(&self) -> Vec<Pointer<Edge>> {
+        let mut edges = vec![];
+        for weak_edge in self.edges.read().expect("no poison").iter() {
+            if let Some(arc_edge) = weak_edge.upgrade() {
+                edges.push(Pointer::from_arc(arc_edge));
+            }
+        }
+        edges
+    }
+
     /// B. Given a vertex/face, return the adjacent faces/vertices
     /// Select faces of vertex. The faces are adjacent because they have Arc pointers this vertex.
     pub fn adjacent_faces(&self) -> Mesh {
@@ -49,12 +59,12 @@ impl Vertex {
         &self.point
     }
 
-    /// Mutate the interior to include the weak face pointer
+    /// Mutate the interior to include the weak face pointer. 
     pub fn push_face_back_ref(&self, face: &Weak<Face>) {
         self.faces.write().expect("no poison").push(face.clone());
     }
 
-    /// Mutate the interior to include the weak edge pointer
+    /// Mutate the interior to include the weak edge pointer. 
     pub fn push_edge_back_ref(&self, edge: &Weak<Edge>) {
         self.edges.write().expect("no poison").push(edge.clone());
     }
