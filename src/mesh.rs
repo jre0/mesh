@@ -14,7 +14,6 @@ pub struct Mesh {
 }
 
 impl Mesh {
-
     /// C. Return all the vertices or faces 
     /// (Vertices)
     pub fn vertex_list(self) -> Vec<Pointer<Vertex>> {
@@ -81,6 +80,7 @@ impl Mesh {
         mesh
     }
 
+    /// Insert face pointer 
     pub fn insert_face(&mut self, face: &Pointer<Face>) {
         self.faces.insert(face.clone());
     }
