@@ -36,8 +36,7 @@ impl Mesh {
                 &vertices[self.parse_vertex_index(&caps, 2)?],
                 &vertices[self.parse_vertex_index(&caps, 3)?],
             ]);
-            let pointer = Pointer::new(face);
-            self.faces.insert(pointer);
+            self.faces.insert(face);
         }
         Ok(())
     }
@@ -49,14 +48,10 @@ impl Mesh {
             let i2 = &vertices[self.parse_vertex_index(&caps, 2)?];
             let i3 = &vertices[self.parse_vertex_index(&caps, 3)?];
             let i4 = &vertices[self.parse_vertex_index(&caps, 4)?];
-            // first triangle 
-            let face = Face::new([i1, i2, i3]);
-            let pointer = Pointer::new(face);
-            self.faces.insert(pointer);
-            // second triangle
-            let face = Face::new([i1, i3, i4]);
-            let pointer = Pointer::new(face);
-            self.faces.insert(pointer);
+            let first_face = Face::new([i1, i2, i3]);
+            self.faces.insert(first_face);
+            let second_face = Face::new([i1, i3, i4]);
+            self.faces.insert(second_face);
         }
         Ok(())
     }

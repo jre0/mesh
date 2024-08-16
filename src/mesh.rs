@@ -54,12 +54,12 @@ impl Mesh {
         true 
     }
 
-    /// Mesh from set of weak face pointers 
-    pub fn from_weak_faces(faces: &HashSet<Weak<Face>>) -> Self {
+    /// Mesh from weak face pointers 
+    pub fn from_weak_faces(faces: &Vec<Weak<Face>>) -> Self {
         let mut mesh = Self::default();
         for weak_face in faces {
-            if let Some(strong_face) = weak_face.upgrade() {
-                mesh.faces.insert(Pointer::from_arc(strong_face));
+            if let Some(arc_face) = weak_face.upgrade() {
+                mesh.faces.insert(Pointer::from_arc(arc_face));
             }
         }
         mesh

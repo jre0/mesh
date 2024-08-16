@@ -11,12 +11,16 @@ pub struct Face {
 impl Face {
     /// F. Construct a new face from vertices, and a new vertex from coordinates.
     /// (new face from vertices)
-    pub fn new(vertices: [&Pointer<Vertex>; 3]) -> Self {
-        Self {
+    pub fn new(vertices: [&Pointer<Vertex>; 3]) -> Pointer<Self> {
+        let arc = Arc::new(Self {
             a: vertices[0].clone(),
             b: vertices[1].clone(),
             c: vertices[2].clone(),
-        }
+        });
+        let mut face = Pointer::from_arc(arc);
+        let weak_face = Arc::downgrade(&face.0);
+        // face.a = vertices[0].with_weak_face(&weak_face);
+        face
     }
 
     /// G. Flip the sense of a face.
