@@ -117,16 +117,15 @@ fn delete_vertex() -> Result<(), Error> {
 }
 
 /// F. Construct a new face from vertices, and a new vertex from coordinates.
-/// (new vertices and face added to model)
 #[test]
 fn add_face() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_with_new_face.obj";
     let mut mesh = Mesh::read(&input_path)?;
     let count = mesh.faces.len();
-    let a = Vertex::new(Vector3::new([10., 0., 0.]));
-    let b = Vertex::new(Vector3::new([0., 10., 0.]));
-    let c = Vertex::new(Vector3::new([10., 0., 10.]));
+    let a = Vertex::new(Vector3::new(10., 0., 0.));
+    let b = Vertex::new(Vector3::new(0., 10., 0.));
+    let c = Vertex::new(Vector3::new(10., 0., 10.));
     let face = Face::new([&a, &b, &c]);
     mesh.insert_face(&face);
     mesh.write(&output_path)?;

@@ -4,9 +4,9 @@ use std::hash::Hash;
 /// Face made of smart pointers to vertices
 #[derive(Default, PartialEq, Eq, Hash, Debug)]
 pub struct Face {
-    a: Pointer<Vertex>,
-    b: Pointer<Vertex>,
-    c: Pointer<Vertex>,
+    pub a: Pointer<Vertex>,
+    pub b: Pointer<Vertex>,
+    pub c: Pointer<Vertex>,
 }
 
 impl Face {
@@ -25,15 +25,12 @@ impl Face {
         face
     }
 
-    /// Select vertices as new mesh
-    pub fn vertices(&self) -> Mesh {
-        let mut mesh = Mesh::default();
-        mesh.vertices
-            .extend([self.a.clone(), self.b.clone(), self.c.clone()]);
-        mesh
+    /// Get vertices A, B, and C of this face
+    pub fn vertices(&self) -> [&Pointer<Vertex>; 3] {
+        [&self.a, &self.b, &self.c]
     }
 
-    /// Normal vector of face.
+    /// Normal vector of face. 
     pub fn normal(&self) -> Result<Vector3, Error> {
         let delta0 = self.b.point() - self.a.point();
         let delta1 = self.c.point() - self.a.point();
@@ -113,8 +110,8 @@ impl Pointer<Face> {
     /// Select all adjacent faces excluding self
     pub fn adjacent_faces(&self) -> Mesh {
         let mut mesh = self.a.adjacent_faces();
-        mesh.extend(self.b.adjacent_faces());
-        mesh.extend(self.c.adjacent_faces());
+        mesh.faces.extend(self.b.adjacent_faces().faces);
+        mesh.faces.extend(self.c.adjacent_faces().faces);
         mesh.remove_face(self);
         mesh
     }

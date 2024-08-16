@@ -16,8 +16,7 @@ pub struct Vertex {
 }
 
 impl Vertex {
-    /// F. Construct a new face from vertices, and a new vertex from coordinates.
-    /// (new vertex from coordinates)
+    /// F. A new vertex from coordinates.
     pub fn new(point: Vector3) -> Pointer<Self> {
         Pointer::new(Self {
             id: rand::random::<u32>(),
@@ -48,11 +47,11 @@ impl Vertex {
         self.adjacent_faces().face_vertices()
     }
 
-    /// B. Given a vertex/face, return the adjacent faces/vertices
-    /// Select adjacent faces AND vertices
-    pub fn adjacent_vertices_and_faces(&self) -> Mesh {
-        self.adjacent_faces().with_face_vertices()
-    }
+    // /// B. Given a vertex/face, return the adjacent faces/vertices
+    // /// Select adjacent faces AND vertices
+    // pub fn adjacent_vertices_and_faces(&self) -> Mesh {
+    //     self.adjacent_faces().with_face_vertices()
+    // }
 
     /// D. Return the coordinates of a given vertex.
     pub fn point(&self) -> &Vector3 {

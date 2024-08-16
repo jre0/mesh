@@ -93,8 +93,7 @@ impl Mesh {
         } 
         // make a mesh to visualize the loop vertices
         let mut mesh = Mesh::default();
-        mesh.edges.extend(edges.into_values());
-        mesh = mesh.with_edge_vertices();
+        mesh.vertices.extend(edges.values().flat_map(|e| [e.a.clone(), e.b.clone()]));
         Ok((count, mesh))
     }
 
@@ -113,23 +112,7 @@ impl Mesh {
     pub fn face_vertices(&self) -> Self {
         let mut mesh = Self::default();
         for face in &self.faces {
-            mesh.extend(face.vertices());
-        }
-        mesh
-    }
-
-    /// Include face vertices directly in new mesh
-    pub fn with_face_vertices(&self) -> Self {
-        let mut mesh = self.clone();
-        mesh.extend(self.face_vertices());
-        mesh
-    }
-
-    /// Include edge vertices directly in new mesh
-    pub fn with_edge_vertices(&self) -> Self {
-        let mut mesh = self.clone();
-        for edge in &self.edges {
-            mesh.extend(edge.vertices());
+            mesh.vertices.extend(face.vertices().into_iter().cloned());
         }
         mesh
     }
@@ -142,12 +125,5 @@ impl Mesh {
     /// Insert edge pointer
     pub fn insert_edge(&mut self, edge: &Pointer<Edge>) {
         self.edges.insert(edge.clone());
-    }
-
-    /// Extend vertices, faces, and edges from other
-    pub fn extend(&mut self, other: Self) {
-        self.vertices.extend(other.vertices);
-        self.faces.extend(other.faces);
-        self.edges.extend(other.edges);
     }
 }

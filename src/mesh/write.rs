@@ -15,8 +15,7 @@ impl Mesh {
         // as indices are assigned to vertices
         for face in &self.faces {
             let mut indices = vec![];
-            let vertices_mesh = face.vertices();
-            for vertex in vertices_mesh.vertex_list() {
+            for vertex in face.vertices() {
                 if let Some(index) = vertices.get(vertex) {
                     indices.push(*index);
                 } else {

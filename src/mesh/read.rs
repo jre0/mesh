@@ -15,11 +15,11 @@ impl Mesh {
         let mut vertices = vec![];
         let regex = Regex::new(r"v (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+) (-?[0-9]\d*\.\d+)")?;
         for caps in regex.captures_iter(data) {
-            let vector = Vector3::new([
+            let vector = Vector3::new(
                 self.parse_vertex_component(&caps, 1)?,
                 self.parse_vertex_component(&caps, 2)?,
                 self.parse_vertex_component(&caps, 3)?,
-            ]);
+            );
             let vertex = Vertex::new(vector);
             self.vertices.insert(vertex.clone());
             vertices.push(vertex);
