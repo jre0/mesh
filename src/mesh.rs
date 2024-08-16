@@ -15,15 +15,45 @@ pub struct Mesh {
 
 impl Mesh {
 
-    /// C. Return all the vertices or faces.
-    /// Vertices only
-    pub fn vertices(&self) -> Self {
-        let mut mesh = Self::default();
-        mesh.vertices.extend(self.vertices.clone());
-        //mesh.vertices.extend(self.faces)
-        mesh
+    /// C. Return all the vertices or faces 
+    /// (Vertices)
+    pub fn vertex_list(self) -> Vec<Pointer<Vertex>> {
+        self.vertices.into_iter().collect()
     }
-    
+
+    /// C. Return all the vertices or faces 
+    /// (Faces)
+    pub fn face_list(self) -> Vec<Pointer<Face>> {
+        self.faces.into_iter().collect()
+    }
+
+    /// E. Delete a vertex or face, with optional flag to delete all connected faces (if a vertex).
+    /// (Vertex)
+    pub fn delete_vertex(&mut self, vertex: &Pointer<Vertex>, delete_faces: bool) {
+        if delete_faces {
+            for face in vertex.adjacent_faces().face_list() {
+                self.faces.remove(&face);
+            }
+        }
+        self.vertices.remove(vertex);
+    }
+
+    /// E. Delete a vertex or face, with optional flag to delete all connected faces (if a vertex).
+    /// (Face)
+    pub fn delete_face(&mut self, face: &Pointer<Face>) {
+        self.faces.remove(face);
+    }
+
+    /// 2. Write a function that returns whether all faces are consistently oriented.
+    pub fn consistent_orientation(&self) -> bool {
+        for face in &self.faces {
+            if face.adjacent_is_flipped() {
+                return false;
+            }
+        }
+        true 
+    }
+
     /// Mesh from set of weak face pointers 
     pub fn from_weak_faces(faces: &HashSet<Weak<Face>>) -> Self {
         let mut mesh = Self::default();
@@ -39,25 +69,49 @@ impl Mesh {
     pub fn face_vertices(&self) -> Self {
         let mut mesh = Self::default();
         for face in &self.faces {
-            mesh.vertices.extend(face.vertices().map(|x| x.clone()))
+            mesh.extend(face.vertices());
         }
         mesh
     }
 
-    /// Include face vertices directly in clone of this mesh
+    /// Include face vertices directly in new mesh
     pub fn with_face_vertices(&self) -> Self {
-        self.clone().join(self.face_vertices())
-    }
-
-    /// Mesh from join of self and other
-    pub fn join(&self, other: Self) -> Self {
         let mut mesh = self.clone();
-        mesh.vertices.extend(other.vertices);
-        mesh.faces.extend(other.faces);
-        mesh.edges.extend(other.edges);
+        mesh.extend(self.face_vertices());
         mesh
     }
+
+    /// Extend vertices, faces, and edges from other
+    pub fn extend(&mut self, other: Self) {
+        self.vertices.extend(other.vertices);
+        self.faces.extend(other.faces);
+        self.edges.extend(other.edges);
+    }
 }
+
+
+
+// mesh.vertices.extend(face.vertices().map(|x| x.clone()))
+
+// /// Extend vertices, faces, and edges from other
+// pub fn extend(&mut self, other: Self) {
+//     self.vertices.extend(other.vertices);
+//     self.faces.extend(other.faces);
+//     self.edges.extend(other.edges);
+// }
+
+
+
+// /// Mesh from join of self and other
+// pub fn join(&self, other: Self) -> Self {
+//     let mut mesh = self.clone();
+//     mesh.vertices.extend(other.vertices);
+//     mesh.faces.extend(other.faces);
+//     mesh.edges.extend(other.edges);
+//     mesh
+// }
+
+
 
 
 // pub fn extend_vertices(&mut self, vertices: Vec<ArcPlus<Vertex>>) - {

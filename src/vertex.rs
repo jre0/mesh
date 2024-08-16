@@ -1,7 +1,7 @@
 use std::{collections::HashSet, hash::Hash, sync::Weak};
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Vertex {
     id: u64,
     point: Vector3,
@@ -10,7 +10,8 @@ pub struct Vertex {
 }
 
 impl Vertex {
-
+    /// F. Construct a new face from vertices, and a new vertex from coordinates.
+    /// (new vertex from coordinates)
     pub fn new(point: Vector3) -> Self {
         Self { 
             id: rand::random::<u64>(),

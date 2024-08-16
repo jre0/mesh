@@ -13,8 +13,8 @@ impl Mesh {
         let mut count: usize = 0;
         for face in &self.faces {
             let mut indices = vec![];
-            for vertex in face.vertices() {
-                if let Some(index) = vertices.get(vertex) {
+            for vertex in face.vertices().vertex_list() {
+                if let Some(index) = vertices.get(&vertex) {
                     indices.push(*index);
                 } else {
                     out += &self.vertex_entry(vertex.point());
