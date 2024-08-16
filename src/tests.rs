@@ -167,6 +167,21 @@ fn not_consistently_oriented() -> Result<(), Error> {
     Ok(())
 }
 
+/// 3. Write a function that returns the number of loops bounding a surface mesh.
+#[test]
+fn surface_bounding_loop_count() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_surface_with_loop_count.obj";
+    let output_path_edges = TEST_OUTPUT_PATH.to_owned() + "/shuttle_surface_with_loop_count_edges.obj";
+    let mesh = Mesh::read(&input_path)?;
+    let face = *mesh.face_list().first().ok_or("no faces")?;
+    let (mesh, edges) = face.surface_bounding_loop_count(15.)?;
+    mesh.write(&output_path)?;
+    edges.with_edge_vertices().write(&output_path_edges)?;
+    assert_eq!(edges.edges.len(), 0);
+    Ok(())
+}
+
 /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
 /// I might have miss understood this task. However, this one is fun to play around with.
 /// Try running the test multiple times with different angles and viewing the mesh in blender.

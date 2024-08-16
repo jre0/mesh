@@ -1,5 +1,5 @@
 use super::*;
-use std::hash::Hash;
+use std::{collections::HashSet, hash::Hash};
 
 /// Face made of smart pointers to vertices
 #[derive(Default, PartialEq, Eq, Hash, Debug)]
@@ -75,23 +75,37 @@ impl Pointer<Face> {
         false
     }
 
+    /// 3. Write a function that returns the number of loops bounding a surface mesh.
+    /// The idea is to grow the selection with small angle tolerance to get a natural face 
+    /// of many triangles and count edges along the way. Then we can traverse the edges
+    /// to count loops by using the forward and backward refs with vertices
+    pub fn surface_bounding_loop_count(&self, angle_tol: f64) -> Result<(Mesh, Mesh), Error> {
+        let mut mesh = Mesh::default();
+        let mut edges = Mesh::default();
+        self.insert_adjacent_with_max_angle(&mut mesh, &mut edges, angle_tol)?;
+        //let count = edges.edges.len();
+        Ok((mesh, edges))
+    }
+
     /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
     /// I am not sure by "MINIMUM angle BELOW a specified angle".
     /// I think below means there is a max angle and we want to be below that. (if there is a min, we want to be above it)
     /// This method will grow selection from this face, stopping at sharp corners where the angle is too great.
     pub fn grow_selection_with_max_angle(&self, angle: f64) -> Result<Mesh, Error> {
         let mut mesh = Mesh::default();
-        self.insert_adjacent_with_max_angle(&mut mesh, angle)?;
+        let mut edges = Mesh::default();
+        self.insert_adjacent_with_max_angle(&mut mesh, &mut edges, angle)?;
         Ok(mesh)
     }
 
-    /// Recursively insert adjacent faces into given mesh.
+    /// Recursively insert adjacent faces into given mesh and edges mesh.
     /// Stop if the angle is too big or face already present in mesh.
     pub fn insert_adjacent_with_max_angle<'a>(
         &self,
         mesh: &'a mut Mesh,
+        edges: &'a mut Mesh,
         angle: f64,
-    ) -> Result<&'a mut Mesh, Error> {
+    ) -> Result<(&'a mut Mesh, &'a mut Mesh), Error> {
         mesh.insert_face(self);
         let base_normal = self.normal()?;
         for face in self.adjacent_faces().face_list() {
@@ -100,10 +114,14 @@ impl Pointer<Face> {
             }
             let normal = face.normal()?;
             if base_normal.dot(&normal).acos().to_degrees() <= angle {
-                face.insert_adjacent_with_max_angle(mesh, angle)?;
+                face.insert_adjacent_with_max_angle(mesh, edges, angle)?;
+            } else {
+                if let Ok(edge) = Edge::from_faces(self, face) {
+                    edges.insert_edge(&edge);
+                }
             }
         }
-        Ok(mesh)
+        Ok((mesh, edges))
     }
 
     /// Select all adjacent faces excluding self

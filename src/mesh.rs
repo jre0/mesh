@@ -87,9 +87,23 @@ impl Mesh {
         mesh
     }
 
+    /// Include edge vertices directly in new mesh
+    pub fn with_edge_vertices(&self) -> Self {
+        let mut mesh = self.clone();
+        for edge in &self.edges {
+            mesh.extend(edge.vertices());
+        }
+        mesh
+    }
+
     /// Insert face pointer
     pub fn insert_face(&mut self, face: &Pointer<Face>) {
         self.faces.insert(face.clone());
+    }
+
+    /// Insert edge pointer
+    pub fn insert_edge(&mut self, edge: &Pointer<Edge>) {
+        self.edges.insert(edge.clone());
     }
 
     /// Extend vertices, faces, and edges from other

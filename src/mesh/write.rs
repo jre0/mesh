@@ -35,6 +35,12 @@ impl Mesh {
                 out += &self.vertex_entry(vertex.point());
             }
         }
+        // // Output leftover vertices that no faces are referencing
+        // for edge in self.edges.iter() {
+        //     if !vertices.contains_key(vertex) {
+        //         out += &self.vertex_entry(vertex.point());
+        //     }
+        // }
         // Append the faces to the existing doc of vertices
         out += &("\n\n".to_owned() + &faces_out);
         fs::write(path, out)?;

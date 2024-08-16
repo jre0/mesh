@@ -9,7 +9,7 @@ use std::{
 /// which allow easy traversal of a surface.
 #[derive(Default, Clone, Debug)]
 pub struct Vertex {
-    id: u64,
+    pub id: u32,
     point: Vector3,
     faces: Arc<RwLock<Vec<Weak<Face>>>>,
     edges: Arc<RwLock<Vec<Weak<Edge>>>>,
@@ -20,7 +20,7 @@ impl Vertex {
     /// (new vertex from coordinates)
     pub fn new(point: Vector3) -> Pointer<Self> {
         Pointer::new(Self {
-            id: rand::random::<u64>(),
+            id: rand::random::<u32>(),
             point,
             ..Default::default()
         })
