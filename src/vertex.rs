@@ -37,14 +37,22 @@ impl Vertex {
 
     /// B. Given a vertex/face, return the adjacent faces/vertices
     /// Select faces of vertex. The faces are adjacent because they have Arc pointers this vertex.
-    pub fn adjacent_faces(&self) -> Mesh {
-        Mesh::from_weak_faces(&self.faces.read().expect("no poison").clone())
+    pub fn adjacent_faces(&self) -> Vec<Pointer<Face>> {
+        let mut faces = vec![];
+        for weak_face in self.faces.read().expect("no poison").iter() {
+            if let Some(arc_edge) = weak_face.upgrade() {
+                faces.push(Pointer::from_arc(arc_edge));
+            }
+        }
+        faces
+        // Mesh::from_weak_faces(&self.faces.read().expect("no poison").clone())
     }
 
     /// B. Given a vertex/face, return the adjacent faces/vertices
     /// Select adjacent vertices of vertex including this vertex
-    pub fn adjacent_vertices(&self) -> Mesh {
-        self.adjacent_faces().face_vertices()
+    pub fn adjacent_vertices(&self) -> Vec<Pointer<Vertex>> {
+        self.adjacent_faces().iter().flat_map(|x| x.vertices().into_iter().cloned()).collect()
+        // self.adjacent_faces().face_vertices()
     }
 
     // /// B. Given a vertex/face, return the adjacent faces/vertices
