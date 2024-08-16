@@ -2,29 +2,44 @@ use std::{collections::HashSet, hash::Hash, sync::Weak};
 use super::*;
 
 #[derive(Default)]
-pub struct ArcVertex(Vertex);
-
-impl Hash for ArcVertex {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.0.point.hash(state);
-    }
-}
-
-#[derive(Default)]
 pub struct Vertex {
+    id: u64,
     point: Vector3,
     edges: HashSet<Weak<Edge>>,
     faces: HashSet<Weak<Face>>,
 }
 
 impl Vertex {
-    pub fn faces(&self) -> Pick {
-        let mut pick = Pick::default();
-        for weak_face in &self.faces {
-            if let Some(strong_face) = weak_face.upgrade() {
-                pick.faces.insert()
-            }
-        }
-        pick
+
+    /// B. Given a vertex/face, return the adjacent faces/vertices
+    /// Select faces of vertex. The faces are adjacent because they have Arc pointers this vertex.
+    pub fn adjacent_faces(&self) -> Mesh {
+        Mesh::from_weak_faces(&self.faces)
+    }
+
+    /// B. Given a vertex/face, return the adjacent faces/vertices
+    /// Select adjacent vertices of vertex including this vertex
+    pub fn adjacent_vertices(&self) -> Mesh {
+        self.adjacent_faces().vertices_only()
+    }
+
+    /// B. Given a vertex/face, return the adjacent faces/vertices
+    /// Select adjacent vertices AND faces
+    pub fn adjacent_vertices_and_faces(&self) -> Mesh {
+        self.adjacent_faces().with_face_vertices()
+    }
+}
+
+impl Eq for Vertex {}
+
+impl PartialEq for Vertex {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Hash for Vertex {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
     }
 }

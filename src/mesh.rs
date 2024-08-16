@@ -1,20 +1,61 @@
-use std::{collections::HashSet, fs, sync::Arc};
+use std::{collections::HashSet, fs};
 use regex::{Captures, Regex};
 use super::*;
 
 mod read;
 mod write;
 
-#[derive(Default)]
+/// Mesh can be the primary data or selection of a subset of the data.
+#[derive(Default, Clone)]
 pub struct Mesh {
-    vertices: Vec<Arc<Vertex>>,
-    faces: Vec<Arc<Face>>,
+    vertices: HashSet<ArcPlus<Vertex>>,
+    edges: HashSet<ArcPlus<Edge>>,
+    faces: HashSet<ArcPlus<Face>>,
 }
 
-// impl Mesh {
-//     /// B. Given a vertex/face, return the adjacent faces/vertices
-//     // pub fn adjacent_of_vertex(&self) -> 
+impl Mesh {
+    
+    /// Mesh from set of weak face pointers 
+    pub fn from_weak_faces(faces: &HashSet<Weak<Face>>) -> Self {
+        let mut mesh = Mesh::default();
+        for weak_face in faces {
+            if let Some(strong_face) = weak_face.upgrade() {
+                mesh.faces.insert(ArcPlus::new(strong_face));
+            }
+        }
+        mesh
+    }
+
+    /// Select all vertices of this mesh
+    pub fn vertices_only(&self) -> Mesh {
+        let mut mesh = Mesh::default();
+        for face in &self.faces {
+            mesh.vertices.extend(face.0.vertices())
+        }
+        mesh
+    }
+
+    /// Select all vertices of this mesh
+    pub fn with_face_vertices(&self) -> Mesh {
+        let mut mesh = self.clone();
+        for face in &self.faces {
+            mesh.vertices.extend(face.0.vertices())
+        }
+        mesh
+    }
+}
+
+
+// pub fn extend_vertices(&mut self, vertices: Vec<ArcPlus<Vertex>>) - {
+//     self.vertices.extend(vertices);
 // }
+
+// pub fn from_vertices(vertices: Vec<ArcPlus<Vertex>>) -> Self {
+//     let mut mesh = Mesh::default();
+//     mesh.vertices.extend(vertices);
+//     mesh
+// }
+
 
 // /// Mesh
 // #[derive(Default)]
