@@ -36,12 +36,16 @@ impl Face {
     }
 
     /// Create a new face by replacing a vertex.
-    /// If the vertex is already used, none is returned because the face 
+    /// If the vertex is already used, none is returned because the face
     /// has collapsed
-    pub fn replace_vertex(&self, old: &Pointer<Vertex>, new: &Pointer<Vertex>) -> Option<Pointer<Self>> {
+    pub fn replace_vertex(
+        &self,
+        old: &Pointer<Vertex>,
+        new: &Pointer<Vertex>,
+    ) -> Option<Pointer<Self>> {
         if old == new {
             return None;
-        } 
+        }
         let mut face = self.clone();
         if face.a == *old {
             face.a = new.clone();
@@ -58,7 +62,7 @@ impl Face {
         [&self.a, &self.b, &self.c]
     }
 
-    /// Normal vector of face. 
+    /// Normal vector of face.
     pub fn normal(&self) -> Result<Vector3, Error> {
         let delta0 = self.b.point() - self.a.point();
         let delta1 = self.c.point() - self.a.point();
@@ -85,7 +89,7 @@ impl Pointer<Face> {
 
     /// 2. Write a function that returns whether all faces are consistently oriented.
     /// (See Mesh::consistent_orientation)
-    /// This can be made simpler by checking for edges with same common_id and if they go the 
+    /// This can be made simpler by checking for edges with same common_id and if they go the
     /// same direction as well, it's not consistent orientation
     pub fn adjacent_is_flipped(&self) -> bool {
         for face in self.adjacent_faces() {
@@ -113,7 +117,11 @@ impl Pointer<Face> {
 
     /// Make edges in winding order refering to face vertices
     pub fn edges(&self) -> [Pointer<Edge>; 3] {
-        [Edge::new(&self.a, &self.b), Edge::new(&self.b, &self.c), Edge::new(&self.c, &self.a)]
+        [
+            Edge::new(&self.a, &self.b),
+            Edge::new(&self.b, &self.c),
+            Edge::new(&self.c, &self.a),
+        ]
     }
 
     /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.

@@ -5,12 +5,7 @@ pub use mesh::*;
 pub use vector3::*;
 pub use vertex::*;
 
-use std::{
-    error,
-    hash::Hash,
-    ops::Deref,
-    sync::Arc,
-};
+use std::{error, hash::Hash, ops::Deref, sync::Arc};
 
 mod config;
 mod edge;
@@ -21,10 +16,10 @@ mod tests;
 mod vector3;
 mod vertex;
 
-/// Mesh crate error 
+/// Mesh crate error
 pub type Error = Box<dyn error::Error>;
 
-/// Atomic reference counter smart pointer. 
+/// Atomic reference counter smart pointer.
 /// Equality and Hash implementations allow insertion in HashSet.
 #[derive(Debug)]
 pub struct Pointer<T>(Arc<T>);

@@ -1,7 +1,7 @@
 use super::*;
 
-/// Edge that points to two vertices. 
-/// The order of A and B matters. 
+/// Edge that points to two vertices.
+/// The order of A and B matters.
 #[derive(Default, PartialEq, Eq, Hash, Debug)]
 pub struct Edge {
     // The sum of vertex indices to uniquely identify the edge independent of direction

@@ -5,7 +5,6 @@ use super::*;
 const HEAD: &str = "Test Export\n\n";
 
 impl Mesh {
-
     /// Write mesh to OBJ file at path
     pub fn write(&self, path: &str) -> Result<(), Error> {
         let mut out = HEAD.to_owned();
@@ -13,7 +12,7 @@ impl Mesh {
         let mut faces_out = "# Faces\n".to_owned();
         let mut vertices = HashMap::new();
         let mut count: usize = 0;
-        // Collect vertices from faces and pre-write faces 
+        // Collect vertices from faces and pre-write faces
         // as indices are assigned to vertices
         for face in &self.faces {
             let mut indices = vec![];

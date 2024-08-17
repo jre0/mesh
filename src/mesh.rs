@@ -2,14 +2,17 @@ pub use convert::IntoMesh;
 
 use super::*;
 use regex::{Captures, Regex};
-use std::{collections::{HashMap, HashSet}, fs};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+};
 
+mod convert;
 mod read;
 mod write;
-mod convert;
 
 /// Mesh made of smart pointers to vertices, faces, and edges
-/// Can represent primary loaded data or subset/selection 
+/// Can represent primary loaded data or subset/selection
 #[derive(Default, Clone, Debug)]
 pub struct Mesh {
     pub vertices: HashSet<Pointer<Vertex>>,
@@ -28,7 +31,7 @@ impl Mesh {
         self.faces.iter().collect()
     }
 
-    /// E. Delete a vertex, with optional flag to delete all connected faces. 
+    /// E. Delete a vertex, with optional flag to delete all connected faces.
     pub fn remove_vertex(&mut self, vertex: &Pointer<Vertex>, delete_faces: bool) {
         if delete_faces {
             for face in vertex.adjacent_faces() {
@@ -60,7 +63,7 @@ impl Mesh {
     }
 
     /// 3. Write a function that returns the number of loops bounding a surface mesh.
-    /// The idea is to collect all edges then we can traverse the edges in order 
+    /// The idea is to collect all edges then we can traverse the edges in order
     /// by using the forward and backward refs with vertices.
     pub fn surface_bounding_loop_count(&self) -> Result<(usize, Mesh), Error> {
         // mesh of edges to examine
@@ -81,7 +84,7 @@ impl Mesh {
         let mut count = 0;
         let mut current = remaining.iter().next().ok_or("no edges")?.clone();
         // Count loops
-        while remaining.len() > 0 {
+        while !remaining.is_empty() {
             remaining.remove(&current);
             if let Some(edge) = current.next_edge() {
                 if remaining.contains(&edge) {
@@ -93,10 +96,11 @@ impl Mesh {
             if let Some(edge) = remaining.iter().next() {
                 current = edge.clone();
             }
-        } 
+        }
         // make a mesh to visualize the loop vertices
         let mut mesh = Mesh::default();
-        mesh.vertices.extend(edges.values().flat_map(|e| [e.a.clone(), e.b.clone()]));
+        mesh.vertices
+            .extend(edges.values().flat_map(|e| [e.a.clone(), e.b.clone()]));
         Ok((count, mesh))
     }
 
@@ -111,7 +115,7 @@ impl Mesh {
                     }
                     mesh.remove_face(&old_face);
                 }
-            } 
+            }
         }
         mesh
     }
@@ -126,4 +130,3 @@ impl Mesh {
         self.edges.insert(edge.clone());
     }
 }
-

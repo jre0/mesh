@@ -4,8 +4,8 @@ use std::{
     sync::{RwLock, Weak},
 };
 
-/// Mesh vertex. 
-/// Primary mesh data with back references to faces and edges 
+/// Mesh vertex.
+/// Primary mesh data with back references to faces and edges
 /// which allow easy traversal of a surface.
 #[derive(Default, Clone, Debug)]
 pub struct Vertex {
@@ -51,7 +51,10 @@ impl Vertex {
     /// B. Given a vertex/face, return the adjacent faces/vertices
     /// Select adjacent vertices of vertex including this vertex
     pub fn adjacent_vertices(&self) -> Vec<Pointer<Vertex>> {
-        self.adjacent_faces().iter().flat_map(|x| x.vertices().into_iter().cloned()).collect()
+        self.adjacent_faces()
+            .iter()
+            .flat_map(|x| x.vertices().into_iter().cloned())
+            .collect()
         // self.adjacent_faces().face_vertices()
     }
 
@@ -60,12 +63,12 @@ impl Vertex {
         &self.point
     }
 
-    /// Mutate the interior to include the weak face pointer. 
+    /// Mutate the interior to include the weak face pointer.
     pub fn push_face_back_ref(&self, face: &Weak<Face>) {
         self.faces.write().expect("no poison").push(face.clone());
     }
 
-    /// Mutate the interior to include the weak edge pointer. 
+    /// Mutate the interior to include the weak edge pointer.
     pub fn push_edge_back_ref(&self, edge: &Weak<Edge>) {
         self.edges.write().expect("no poison").push(edge.clone());
     }

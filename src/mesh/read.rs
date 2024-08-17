@@ -1,7 +1,6 @@
 use super::*;
 
 impl Mesh {
-
     /// Read mesh from OBJ file at path
     pub fn read(path: &str) -> Result<Self, Error> {
         let data = fs::read_to_string(path)?;
