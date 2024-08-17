@@ -1,8 +1,8 @@
 use super::*;
-use std::hash::Hash;
+use std::{collections::HashSet, hash::Hash};
 
 /// Face made of smart pointers to vertices
-#[derive(Default, PartialEq, Eq, Hash, Debug)]
+#[derive(Default, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Face {
     pub a: Pointer<Vertex>,
     pub b: Pointer<Vertex>,
@@ -25,6 +25,34 @@ impl Face {
         face
     }
 
+    /// Get short edge if there
+    pub fn short_edge(&self, tol: f64) -> Option<Pointer<Edge>> {
+        if (self.b.point() - self.a.point()).length() < tol {
+            return Some(Edge::new(&self.a, &self.b));
+        } else if (self.c.point() - self.a.point()).length() < tol {
+            return Some(Edge::new(&self.a, &self.c));
+        }
+        None
+    }
+
+    /// Create a new face by replacing a vertex.
+    /// If the vertex is already used, none is returned because the face 
+    /// has collapsed
+    pub fn replace_vertex(&self, old: &Pointer<Vertex>, new: &Pointer<Vertex>) -> Option<Pointer<Self>> {
+        if old == new {
+            return None;
+        } 
+        let mut face = self.clone();
+        if face.a == *old {
+            face.a = new.clone();
+        } else if face.b == *old {
+            face.b = new.clone();
+        } else if face.c == *old {
+            face.c = new.clone();
+        }
+        Some(Pointer::new(face))
+    }
+
     /// Get vertices A, B, and C of this face
     pub fn vertices(&self) -> [&Pointer<Vertex>; 3] {
         [&self.a, &self.b, &self.c]
@@ -39,6 +67,16 @@ impl Face {
 }
 
 impl Pointer<Face> {
+    /// B. Select adjacent faces excluding self
+    pub fn adjacent_faces(&self) -> HashSet<Pointer<Face>> {
+        let mut faces = HashSet::new();
+        faces.extend(self.a.adjacent_faces());
+        faces.extend(self.b.adjacent_faces());
+        faces.extend(self.c.adjacent_faces());
+        faces.remove(self);
+        faces
+    }
+
     /// G. Flip the sense of a face.
     pub fn flipped(&self) -> Self {
         // A and B are swapped so the normal will be flipped
@@ -47,8 +85,10 @@ impl Pointer<Face> {
 
     /// 2. Write a function that returns whether all faces are consistently oriented.
     /// (See Mesh::consistent_orientation)
+    /// This can be made simpler by checking for edges with same common_id and if they go the 
+    /// same direction as well, it's not consistent orientation
     pub fn adjacent_is_flipped(&self) -> bool {
-        for face in self.adjacent_faces().face_list() {
+        for face in self.adjacent_faces() {
             // Imagine two triangle blocks on a table that can be turned and slid around.
             // They should not flip or overlap. If any of these vertex pairs are shared,
             // it means one triangle is flipped/overlapped and does not share the same direction/orientation.
@@ -71,7 +111,7 @@ impl Pointer<Face> {
         false
     }
 
-    // Find open edge that does not connect with another face
+    /// Make edges in winding order refering to face vertices
     pub fn edges(&self) -> [Pointer<Edge>; 3] {
         [Edge::new(&self.a, &self.b), Edge::new(&self.b, &self.c), Edge::new(&self.c, &self.a)]
     }
@@ -95,8 +135,8 @@ impl Pointer<Face> {
     ) -> Result<&'a mut Mesh, Error> {
         mesh.insert_face(self);
         let base_normal = self.normal()?;
-        for face in self.adjacent_faces().face_list() {
-            if mesh.faces.contains(face) {
+        for face in self.adjacent_faces() {
+            if mesh.faces.contains(&face) {
                 continue;
             }
             let normal = face.normal()?;
@@ -105,14 +145,5 @@ impl Pointer<Face> {
             }
         }
         Ok(mesh)
-    }
-
-    /// Select all adjacent faces excluding self
-    pub fn adjacent_faces(&self) -> Mesh {
-        let mut mesh = self.a.adjacent_faces();
-        mesh.faces.extend(self.b.adjacent_faces().faces);
-        mesh.faces.extend(self.c.adjacent_faces().faces);
-        mesh.remove_face(self);
-        mesh
     }
 }

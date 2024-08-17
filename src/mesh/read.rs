@@ -1,6 +1,8 @@
 use super::*;
 
 impl Mesh {
+
+    /// Read mesh from OBJ file at path
     pub fn read(path: &str) -> Result<Self, Error> {
         let data = fs::read_to_string(path)?;
         let mut mesh = Self::default();
@@ -27,6 +29,7 @@ impl Mesh {
         Ok(vertices)
     }
 
+    /// Read all triangles in obj file
     pub fn read_tris(&mut self, data: &str, vertices: &[Pointer<Vertex>]) -> Result<(), Error> {
         let regex = Regex::new(r"f ([0-9]*) ([0-9]*) ([0-9]*)\n")?;
         for caps in regex.captures_iter(data) {
@@ -40,6 +43,7 @@ impl Mesh {
         Ok(())
     }
 
+    /// Read all quads in obj file
     pub fn read_quads(&mut self, data: &str, vertices: &[Pointer<Vertex>]) -> Result<(), Error> {
         let regex = Regex::new(r"f ([0-9]*) ([0-9]*) ([0-9]*) ([0-9]*)")?;
         for caps in regex.captures_iter(data) {

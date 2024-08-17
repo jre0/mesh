@@ -9,7 +9,7 @@ use std::{
     error,
     hash::Hash,
     ops::Deref,
-    sync::{Arc, Weak},
+    sync::Arc,
 };
 
 mod config;

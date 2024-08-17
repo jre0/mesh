@@ -1,9 +1,12 @@
+pub use convert::IntoMesh;
+
 use super::*;
 use regex::{Captures, Regex};
 use std::{collections::{HashMap, HashSet}, fs};
 
 mod read;
 mod write;
+mod convert;
 
 /// Mesh made of smart pointers to vertices, faces, and edges
 /// Can represent primary loaded data or subset/selection 
@@ -28,8 +31,8 @@ impl Mesh {
     /// E. Delete a vertex, with optional flag to delete all connected faces. 
     pub fn remove_vertex(&mut self, vertex: &Pointer<Vertex>, delete_faces: bool) {
         if delete_faces {
-            for face in vertex.adjacent_faces().face_list() {
-                self.faces.remove(face);
+            for face in vertex.adjacent_faces() {
+                self.faces.remove(&face);
             }
         }
         self.vertices.remove(vertex);
@@ -97,22 +100,18 @@ impl Mesh {
         Ok((count, mesh))
     }
 
-    /// Mesh from weak face pointers
-    pub fn from_weak_faces(faces: &Vec<Weak<Face>>) -> Self {
-        let mut mesh = Self::default();
-        for weak_face in faces {
-            if let Some(arc_face) = weak_face.upgrade() {
-                mesh.faces.insert(Pointer::from_arc(arc_face));
-            }
-        }
-        mesh
-    }
-
-    /// Select all vertices of faces of this mesh
-    pub fn face_vertices(&self) -> Self {
-        let mut mesh = Self::default();
-        for face in &self.faces {
-            mesh.vertices.extend(face.vertices().into_iter().cloned());
+    /// 5. Write a function that collapses all edges with length below a specified threshold.
+    pub fn collapse_edges(&self, tol: f64) -> Mesh {
+        let mut mesh = self.clone();
+        for base_face in &self.faces {
+            if let Some(edge) = base_face.short_edge(tol) {
+                for old_face in edge.a.adjacent_faces() {
+                    if let Some(new_face) = old_face.replace_vertex(&edge.a, &edge.b) {
+                        mesh.insert_face(&new_face);
+                    }
+                    mesh.remove_face(&old_face);
+                }
+            } 
         }
         mesh
     }
@@ -127,3 +126,4 @@ impl Mesh {
         self.edges.insert(edge.clone());
     }
 }
+

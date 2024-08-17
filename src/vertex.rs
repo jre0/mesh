@@ -5,7 +5,7 @@ use std::{
 };
 
 /// Mesh vertex. 
-/// Primary mesh data with back references to faces
+/// Primary mesh data with back references to faces and edges 
 /// which allow easy traversal of a surface.
 #[derive(Default, Clone, Debug)]
 pub struct Vertex {
@@ -54,12 +54,6 @@ impl Vertex {
         self.adjacent_faces().iter().flat_map(|x| x.vertices().into_iter().cloned()).collect()
         // self.adjacent_faces().face_vertices()
     }
-
-    // /// B. Given a vertex/face, return the adjacent faces/vertices
-    // /// Select adjacent faces AND vertices
-    // pub fn adjacent_vertices_and_faces(&self) -> Mesh {
-    //     self.adjacent_faces().with_face_vertices()
-    // }
 
     /// D. Return the coordinates of a given vertex.
     pub fn point(&self) -> &Vector3 {

@@ -5,6 +5,8 @@ use super::*;
 const HEAD: &str = "Test Export\n\n";
 
 impl Mesh {
+
+    /// Write mesh to OBJ file at path
     pub fn write(&self, path: &str) -> Result<(), Error> {
         let mut out = HEAD.to_owned();
         out += "# Vertices\n";

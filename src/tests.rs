@@ -53,6 +53,7 @@ fn select_adjacent_vertices_by_vertex() -> Result<(), Error> {
         .first()
         .ok_or("no vertices")?
         .adjacent_vertices()
+        .into_mesh()
         .write(&output_path)?;
     Ok(())
 }
@@ -69,6 +70,7 @@ fn select_adjacent_face_by_face() -> Result<(), Error> {
         .first()
         .ok_or("no faces")?
         .adjacent_faces()
+        .into_mesh()
         .write(&output_path)?;
     Ok(())
 }
@@ -190,5 +192,15 @@ fn grow_selection_with_max_angle() -> Result<(), Error> {
     let face = *mesh.face_list().first().ok_or("no faces")?;
     face.grow_selection_with_max_angle(15.)?
         .write(&output_path)?;
+    Ok(())
+}
+
+/// 5. Write a function that collapses all edges with length below a specified threshold.
+#[test]
+fn collapse_edges() -> Result<(), Error> {
+    let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
+    let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_collapsed_edges.obj";
+    let mesh = Mesh::read(&input_path)?;
+    mesh.collapse_edges(1.).write(&output_path)?;
     Ok(())
 }
