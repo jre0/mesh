@@ -115,7 +115,7 @@ impl Pointer<Face> {
         false
     }
 
-    /// Make edges in winding order refering to face vertices
+    /// Make edges in winding order pointing to face vertices
     pub fn edges(&self) -> [Pointer<Edge>; 3] {
         [
             Edge::new(&self.a, &self.b),

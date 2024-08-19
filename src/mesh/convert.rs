@@ -1,6 +1,7 @@
 use super::*;
 
 pub trait IntoMesh {
+    /// Move item into new `Mesh`. 
     fn into_mesh(self) -> Mesh;
 }
 

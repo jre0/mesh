@@ -26,7 +26,7 @@ pub struct Pointer<T>(Arc<T>);
 
 impl<T> Deref for Pointer<T> {
     type Target = T;
-
+    /// Auto deref of Pointer to contents
     fn deref(&self) -> &Self::Target {
         &self.0
     }
@@ -48,12 +48,14 @@ impl<T> Clone for Pointer<T> {
 impl<T> Eq for Pointer<T> where T: Eq {}
 
 impl<T> PartialEq for Pointer<T> {
+    /// Check data equality by Pointer equality
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
     }
 }
 
 impl<T: Hash> Hash for Pointer<T> {
+    /// Hash Pointer by hashing contents
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.0.hash(state);
     }
@@ -63,6 +65,7 @@ impl<T> Pointer<T> {
     pub fn new(item: T) -> Self {
         Self(Arc::new(item))
     }
+    /// New pointer directly from atomic reference counter
     pub fn from_arc(arc: Arc<T>) -> Self {
         Self(arc)
     }

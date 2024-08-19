@@ -181,6 +181,7 @@ fn surface_bounding_loop_count() -> Result<(), Error> {
 }
 
 /// 4. Write a function that returns all faces with minimum angle below a specified angle in degrees.
+/// Please see docs for `grow_selection_with_max_angle`.  
 /// I might have miss understood this task. However, this one is fun to play around with.
 /// Try running the test multiple times with different angles and viewing the mesh in blender.
 /// The faces HashSet gives different selections on each run (not good for consistent testing).

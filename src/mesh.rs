@@ -64,9 +64,8 @@ impl Mesh {
 
     /// 3. Write a function that returns the number of loops bounding a surface mesh.
     /// The idea is to collect all edges then we can traverse the edges in order
-    /// by using the forward and backward refs with vertices.
+    /// by using the forward (strong) and backward (weak) pointers of vertices.
     pub fn surface_bounding_loop_count(&self) -> Result<(usize, Mesh), Error> {
-        // mesh of edges to examine
         let mut edges: HashMap<u64, Pointer<Edge>> = HashMap::new();
         // collect open edges
         for face in &self.faces {

@@ -25,6 +25,7 @@ impl Vertex {
         })
     }
 
+    /// Get list of adjacent edges
     pub fn adjacent_edges(&self) -> Vec<Pointer<Edge>> {
         let mut edges = vec![];
         for weak_edge in self.edges.read().expect("no poison").iter() {
@@ -45,7 +46,6 @@ impl Vertex {
             }
         }
         faces
-        // Mesh::from_weak_faces(&self.faces.read().expect("no poison").clone())
     }
 
     /// B. Given a vertex/face, return the adjacent faces/vertices
@@ -55,7 +55,6 @@ impl Vertex {
             .iter()
             .flat_map(|x| x.vertices().into_iter().cloned())
             .collect()
-        // self.adjacent_faces().face_vertices()
     }
 
     /// D. Return the coordinates of a given vertex.
