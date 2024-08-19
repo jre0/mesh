@@ -25,12 +25,14 @@ impl Face {
         face
     }
 
-    /// Get short edge if there
-    pub fn short_edge(&self, tol: f64) -> Option<Pointer<Edge>> {
-        if (self.b.point() - self.a.point()).length() < tol {
+    /// Get a short edge if present
+    pub fn short_edge(&self, threshold: f64) -> Option<Pointer<Edge>> {
+        if (self.a.point() - self.b.point()).length() < threshold {
             return Some(Edge::new(&self.a, &self.b));
-        } else if (self.c.point() - self.a.point()).length() < tol {
-            return Some(Edge::new(&self.a, &self.c));
+        } else if (self.b.point() - self.c.point()).length() < threshold {
+            return Some(Edge::new(&self.b, &self.c));
+        } else if (self.c.point() - self.a.point()).length() < threshold {
+            return Some(Edge::new(&self.c, &self.a));
         }
         None
     }
@@ -38,23 +40,23 @@ impl Face {
     /// Create a new face by replacing a vertex.
     /// If the vertex is already used, none is returned because the face
     /// has collapsed
-    pub fn replace_vertex(
+    pub fn with_swapped_vertex(
         &self,
         old: &Pointer<Vertex>,
         new: &Pointer<Vertex>,
     ) -> Option<Pointer<Self>> {
-        if old == new {
+        if self.a == *new || self.b == *new || self.c == *new {
             return None;
         }
-        let mut face = self.clone();
-        if face.a == *old {
-            face.a = new.clone();
-        } else if face.b == *old {
-            face.b = new.clone();
-        } else if face.c == *old {
-            face.c = new.clone();
+        if self.a == *old {
+            Some(Self::new([new, &self.b, &self.c]))
+        } else if self.b == *old {
+            Some(Self::new([&self.a, new, &self.c]))
+        } else if self.c == *old {
+            Some(Self::new([&self.a, &self.b, new]))
+        } else {
+            None
         }
-        Some(Pointer::new(face))
     }
 
     /// Get vertices A, B, and C of this face
@@ -71,6 +73,8 @@ impl Face {
 }
 
 impl Pointer<Face> {
+    
+
     /// B. Select adjacent faces excluding self
     pub fn adjacent_faces(&self) -> HashSet<Pointer<Face>> {
         let mut faces = HashSet::new();

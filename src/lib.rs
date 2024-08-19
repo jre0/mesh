@@ -48,7 +48,7 @@ impl<T> Clone for Pointer<T> {
 impl<T> Eq for Pointer<T> where T: Eq {}
 
 impl<T> PartialEq for Pointer<T> {
-    /// Check data equality by Pointer equality
+    /// Pointer equality
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
     }
