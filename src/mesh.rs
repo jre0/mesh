@@ -104,8 +104,12 @@ impl Mesh {
     }
 
     /// 5. Write a function that collapses all edges with length below a specified threshold.
-    pub fn collapse_edges(&self, threshold: f64) -> Mesh {
+    pub fn collapse_edges(self, threshold: f64) -> Mesh {
         let mut mesh = self.clone();
+        // Need to drop original so adjacents of original mesh are not explored
+        // This is a problem because it forces the user to lose their original data in memory 
+        // Can be avoid by finding away to make vertices loose their back refs when desired
+        drop(self);
         let mut face_iter = mesh.faces.iter();
         while let Some(base_face) = face_iter.next() {
             if let Some(edge) = base_face.short_edge(threshold) {
@@ -113,15 +117,10 @@ impl Mesh {
                 for old_face in edge.a.adjacent_faces() {
                     mesh.remove_face(&old_face);
                     if let Some(new_face) = old_face.with_swapped_vertex(&edge.a, &edge.b) {
-                        if let Some(_) = new_face.short_edge(threshold) {
-
-                        } else {
-                            mesh.insert_face(&new_face);
-                        }
+                        mesh.insert_face(&new_face);
                     }
                 }
                 // fresh iterator because faces changed 
-                mesh = mesh.clone();
                 face_iter = mesh.faces.iter();
             }
         }

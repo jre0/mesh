@@ -197,11 +197,13 @@ fn grow_selection_with_max_angle() -> Result<(), Error> {
 }
 
 /// 5. Write a function that collapses all edges with length below a specified threshold.
+/// Works correctly in regard to collapses edges but does no check or cleanup to make sure
+/// the mesh is still valid
 #[test]
 fn collapse_edges() -> Result<(), Error> {
     let input_path = TEST_DATA_PATH.to_owned() + "/shuttle.obj";
     let output_path = TEST_OUTPUT_PATH.to_owned() + "/shuttle_collapsed_edges.obj";
     let mesh = Mesh::read(&input_path)?;
-    mesh.collapse_edges(0.4).write(&output_path)?;
+    mesh.collapse_edges(0.5).write(&output_path)?;
     Ok(())
 }

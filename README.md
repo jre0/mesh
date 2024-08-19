@@ -23,11 +23,11 @@ but I didn't fix it yet.
 Discuss the reasons you used the data structure design you did:
 This is Take-2 for the challenge. I completely changed the data structure to be a smart pointer graph. The main advantage is that selection, insertion, and deletion all become more simple, especially deletion compared to the previous flat array. There are Vertex, Face, and Edge structures which help break out logic into smaller parts. It should be easier to read and maintain. It is more reliable because parts are not accessed via indices, their connections are made in a few critical places such as importing or creating a new face. I can traverse the surface of the mesh easily because the vertices have backward weak pointers to their owners. Multiple Mesh, Face, and Edge can own vertices. If a vertex is deleted in a mesh, it is not lost until everything else also "deletes" it. 
 
+Number 5 now works correctly for simply merging a vertex to another to remove short edges. However, there are no checks for valid mesh and it will result bad meshes if the threshold is too high.
+
 Discuss what kinds of geometry and/or quality checks you would add to 5 and 6 if you had time, to ensure that the resulting mesh had
 good quality.
 I would use the consistent orientation method and ensure there are no open edges with logic already built for counting surface mesh bounding loops. I would also need to ensure there are no intersections with non-adjacent faces which is a harder problem. I would need to take the faces as parametric functions and solve for possible bad intersections. 
-
-I got something almost working for number 5 but it doesn't look right.
 
 
 
