@@ -104,27 +104,26 @@ impl Mesh {
     }
 
     /// 5. Write a function that collapses all edges with length below a specified threshold.
-    pub fn collapse_edges(self, threshold: f64) -> Mesh {
-        let mut mesh = self.clone();
-        // Need to drop original so adjacents of original mesh are not explored
-        // This is a problem because it forces the user to lose their original data in memory 
-        // Can be avoid by finding away to make vertices loose their back refs when desired
-        drop(self);
-        let mut face_iter = mesh.faces.iter();
+    /// The original is consumed instead of working on a new mesh. This is because adjacent_faces
+    /// will pick up faces in the original and copy, interfering with the algorithm. 
+    /// This is a problem because it forces the user to lose their original data in memory. 
+    /// I should make a way to force vertices to drop desired weak pointers back to faces and edges.
+    pub fn collapse_edges(mut self, threshold: f64) -> Self {
+        let mut face_iter = self.faces.iter();
         while let Some(base_face) = face_iter.next() {
             if let Some(edge) = base_face.short_edge(threshold) {
-                mesh.remove_vertex(&edge.a, false);
+                self.remove_vertex(&edge.a, false);
                 for old_face in edge.a.adjacent_faces() {
-                    mesh.remove_face(&old_face);
+                    self.remove_face(&old_face);
                     if let Some(new_face) = old_face.with_swapped_vertex(&edge.a, &edge.b) {
-                        mesh.insert_face(&new_face);
+                        self.insert_face(&new_face);
                     }
                 }
                 // fresh iterator because faces changed 
-                face_iter = mesh.faces.iter();
+                face_iter = self.faces.iter();
             }
         }
-        mesh
+        self
     }
 
     /// Insert face pointer
